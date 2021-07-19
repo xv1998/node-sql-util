@@ -1,6 +1,6 @@
 {
   "name": "node-sql-util",
-  "version": "1.14.2",
+  "version": "1.14.3",
   "description": "node.js node-sql-util",
   "keywords": [
     "mysql",
