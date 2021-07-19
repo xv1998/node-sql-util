@@ -32,11 +32,11 @@ SqlUtil 是轻量型数据库工具库，基于 mysql2+ssh2 实现，支持：
 ## <a id="install">安装</a>
 
 ```
-yarn add sql-util -S
+yarn add node-sql-util -S
 ```
 
 ```
-npm install sql-util --save
+npm install node-sql-util --save
 ```
 
 ## <a id="quick">快速上手</a>

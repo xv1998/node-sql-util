@@ -28,10 +28,10 @@ SqlUtil is a lightweight database tool library based on MySQL2 + SSH2, which sup
 ## <a id="install">Installing</a>
 
 ```
-yarn add sql-util -S
+yarn add node-sql-util -S
 ```
 ```
-npm install sql-util --save
+npm install node-sql-util --save
 ```
 
 
