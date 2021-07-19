@@ -32,9 +32,6 @@
     "xv <xv1324841784@gmail.com>",
     "sqlstring(https://github.com/mysqljs/sqlstring)"
   ],
-  "publishConfig": {
-    "registry": "https://www.npmjs.com"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/xv1998/sql-util.git"
