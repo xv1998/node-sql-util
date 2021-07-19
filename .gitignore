@@ -4,7 +4,6 @@ tsconfig.tsbuildinfo
 .idea
 .cache
 log
-dist
 cache
 *.log
 package-lock.json
