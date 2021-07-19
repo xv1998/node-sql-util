@@ -33,7 +33,7 @@
     "sqlstring(https://github.com/mysqljs/sqlstring)"
   ],
   "publishConfig": {
-    "registry": "https://www.npmjs.com/package/node-sql-util"
+    "registry": "https://www.npmjs.com/package/"
   },
   "repository": {
     "type": "git",
