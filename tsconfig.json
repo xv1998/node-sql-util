@@ -6,11 +6,18 @@
     "strict": true,
     "moduleResolution": "node",
     "rootDir": "lib",
+    "allowJs": true,
     "baseUrl": ".",
     "composite": true,
+    "typeRoots": ["./node_modules/@types"],
     "esModuleInterop": true
   },
   "include": ["lib"],
-  "exclude": ["node_modules","dist"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts",
+    "**/*.test.js"
+  ],
   "references": []
 }

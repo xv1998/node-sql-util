@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 function getSelfPromise() {
-    var resolveFunc = (function () { });
-    var rejectFunc = function () { };
-    var p = new Promise(function (resolve, reject) {
+    let resolveFunc = (() => { });
+    let rejectFunc = () => { };
+    const p = new Promise((resolve, reject) => {
         resolveFunc = resolve;
         rejectFunc = reject;
     });

@@ -1,10 +1,10 @@
 "use strict";
 // copy form https://github.com/mysqljs/sqlstring
-var SqlString = exports;
-var ID_GLOBAL_REGEXP = /`/g;
-var QUAL_GLOBAL_REGEXP = /\./g;
-var CHARS_GLOBAL_REGEXP = /[\0\b\t\n\r\x1a\"\'\\]/g; // eslint-disable-line no-control-regex
-var CHARS_ESCAPE_MAP = {
+let SqlString = exports;
+let ID_GLOBAL_REGEXP = /`/g;
+let QUAL_GLOBAL_REGEXP = /\./g;
+let CHARS_GLOBAL_REGEXP = /[\0\b\t\n\r\x1a\"\'\\]/g; // eslint-disable-line no-control-regex
+let CHARS_ESCAPE_MAP = {
     "\0": "\\0",
     "\b": "\\b",
     "\t": "\\t",
@@ -17,8 +17,8 @@ var CHARS_ESCAPE_MAP = {
 };
 SqlString.escapeId = function escapeId(val, forbidQualified) {
     if (Array.isArray(val)) {
-        var sql = "";
-        for (var i = 0; i < val.length; i++) {
+        let sql = "";
+        for (let i = 0; i < val.length; i++) {
             sql += (i === 0 ? "" : ", ") + SqlString.escapeId(val[i], forbidQualified);
         }
         return sql;
@@ -67,9 +67,9 @@ SqlString.escape = function escape(val, stringifyObjects, timeZone) {
     }
 };
 SqlString.arrayToList = function arrayToList(array, timeZone) {
-    var sql = "";
-    for (var i = 0; i < array.length; i++) {
-        var val = array[i];
+    let sql = "";
+    for (let i = 0; i < array.length; i++) {
+        let val = array[i];
         if (Array.isArray(val)) {
             sql += (i === 0 ? "" : ", ") + "(" + SqlString.arrayToList(val, timeZone) + ")";
         }
@@ -80,24 +80,24 @@ SqlString.arrayToList = function arrayToList(array, timeZone) {
     return sql;
 };
 SqlString.format = function format(sql, _values, stringifyObjects, timeZone) {
-    var values = _values;
+    let values = _values;
     if (values == null) {
         return sql;
     }
     if (!(values instanceof Array || Array.isArray(values))) {
         values = [values];
     }
-    var chunkIndex = 0;
-    var placeholdersRegex = /\?+/g;
-    var result = "";
-    var valuesIndex = 0;
-    var match;
+    let chunkIndex = 0;
+    let placeholdersRegex = /\?+/g;
+    let result = "";
+    let valuesIndex = 0;
+    let match;
     while (valuesIndex < values.length && (match = placeholdersRegex.exec(sql))) {
-        var len_1 = match[0].length;
-        if (len_1 > 2) {
+        let len = match[0].length;
+        if (len > 2) {
             continue;
         }
-        var value = len_1 === 2
+        let value = len === 2
             ? SqlString.escapeId(values[valuesIndex])
             : SqlString.escape(values[valuesIndex], stringifyObjects, timeZone);
         result += sql.slice(chunkIndex, match.index) + value;
@@ -114,17 +114,17 @@ SqlString.format = function format(sql, _values, stringifyObjects, timeZone) {
     return result;
 };
 SqlString.dateToString = function dateToString(date, timeZone) {
-    var dt = new Date(date);
+    let dt = new Date(date);
     if (isNaN(dt.getTime())) {
         return "NULL";
     }
-    var year;
-    var month;
-    var day;
-    var hour;
-    var minute;
-    var second;
-    var millisecond;
+    let year;
+    let month;
+    let day;
+    let hour;
+    let minute;
+    let second;
+    let millisecond;
     if (timeZone === "local") {
         year = dt.getFullYear();
         month = dt.getMonth() + 1;
@@ -135,7 +135,7 @@ SqlString.dateToString = function dateToString(date, timeZone) {
         millisecond = dt.getMilliseconds();
     }
     else {
-        var tz = convertTimezone(timeZone);
+        let tz = convertTimezone(timeZone);
         if (tz !== false && tz !== 0) {
             dt.setTime(dt.getTime() + tz * 60000);
         }
@@ -148,7 +148,7 @@ SqlString.dateToString = function dateToString(date, timeZone) {
         millisecond = dt.getUTCMilliseconds();
     }
     // YYYY-MM-DD HH:mm:ss.mmm
-    var str = zeroPad(year, 4) +
+    let str = zeroPad(year, 4) +
         "-" +
         zeroPad(month, 2) +
         "-" +
@@ -167,14 +167,14 @@ SqlString.bufferToString = function bufferToString(buffer) {
     return "X" + escapeString(buffer.toString("hex"));
 };
 SqlString.objectToValues = function objectToValues(object, timeZone) {
-    var sql = "";
-    for (var key_1 in object) {
-        if (object.hasOwnProperty(key_1)) {
-            var val = object[key_1];
+    let sql = "";
+    for (let key in object) {
+        if (object.hasOwnProperty(key)) {
+            let val = object[key];
             if (typeof val === "function") {
                 continue;
             }
-            sql += (sql.length === 0 ? "" : ", ") + SqlString.escapeId(key_1) + " = " + SqlString.escape(val, true, timeZone);
+            sql += (sql.length === 0 ? "" : ", ") + SqlString.escapeId(key) + " = " + SqlString.escape(val, true, timeZone);
         }
     }
     return sql;
@@ -190,9 +190,9 @@ SqlString.raw = function raw(sql) {
     };
 };
 function escapeString(val) {
-    var chunkIndex = (CHARS_GLOBAL_REGEXP.lastIndex = 0);
-    var escapedVal = "";
-    var match;
+    let chunkIndex = (CHARS_GLOBAL_REGEXP.lastIndex = 0);
+    let escapedVal = "";
+    let match;
     while ((match = CHARS_GLOBAL_REGEXP.exec(val))) {
         escapedVal += val.slice(chunkIndex, match.index) + CHARS_ESCAPE_MAP[match[0]];
         chunkIndex = CHARS_GLOBAL_REGEXP.lastIndex;
@@ -207,7 +207,7 @@ function escapeString(val) {
     return "'" + escapedVal + "'";
 }
 function zeroPad(_number, length) {
-    var number = _number.toString();
+    let number = _number.toString();
     while (number.length < length) {
         number = "0" + number;
     }
@@ -217,7 +217,7 @@ function convertTimezone(tz) {
     if (tz === "Z") {
         return 0;
     }
-    var m = tz.match(/([\+\-\s])(\d\d):?(\d\d)?/);
+    let m = tz.match(/([\+\-\s])(\d\d):?(\d\d)?/);
     if (m) {
         return (m[1] === "-" ? -1 : 1) * (parseInt(m[2], 10) + (m[3] ? parseInt(m[3], 10) : 0) / 60) * 60;
     }

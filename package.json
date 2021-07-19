@@ -37,15 +37,21 @@
     "url": "https://github.com/xv1998/sql-util.git"
   },
   "scripts": {
-    "build": "tsc --build",
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "test": "jest --config ./jest.config.js --forceExit ",
+    "build": "tsc --build"
   },
   "dependencies": {
     "mysql2": "^2.2.5",
     "ssh2": "^0.8.9"
   },
   "devDependencies": {
+    "@babel/core": "^7.14.6",
+    "@babel/preset-env": "^7.14.7",
+    "@babel/preset-typescript": "^7.14.5",
+    "@types/jest": "^26.0.24",
     "@types/node": "^16.3.3",
+    "babel-jest": "^27.0.6",
+    "jest": "^27.0.6",
     "typescript": "^4.3.5"
   }
 }
