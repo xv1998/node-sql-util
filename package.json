@@ -1,0 +1,45 @@
+{
+  "name": "sql-util",
+  "version": "1.14.0",
+  "description": "node.js mysql sql-util",
+  "keywords": [
+    "mysql",
+    "sql tool",
+    "sql util",
+    "orm",
+    "sql builder",
+    "JavaScript",
+    "sql",
+    "sqlserver",
+    "orm",
+    "nodejs",
+    "object relational mapper",
+    "database",
+    "db"
+  ],
+  "author": "xv <xv1324841784@gmail.com>",
+  "homepage": "",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "registry": ""
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xv1998/sql-util.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "dependencies": {
+    "mysql2": "^2.2.5",
+    "ssh2": "^0.8.9"
+  }
+}
