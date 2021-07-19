@@ -1,48 +1,44 @@
+English| [简体中文](./README_CN.md) 
 
+## Table of contents
 
-[English](./README_En.md) | 简体中文
-
-## 目录
-
-- [介绍](#introduction)
-- [安装](install)
-- [快速上手](#quick)
-- [ssh配置](#ssh-config)
-- [SqlUtil 功能介绍](#sql-methods-intro)
-- [SqlUtil 方法使用](#sqlUtil-use)
-- [错误码](#errorCode)
+- [Introduction](#introduction)
+- [Installing](install)
+- [Quick start](#quick)
+- [SSH configuration](#ssh-config)
+- [SqlUtil features](#sql-methods-intro)
+- [SqlUtil methods](#sqlUtil-use)
+- [ErrorCode](#errorCode)
 - [License](#license)
 
-## <a id="introduction">介绍</a>
 
-SqlUtil 是轻量型数据库工具库，基于 mysql2+ssh2 实现，支持：
 
-- 支持 ssh 远程调试，方便本地开发调试
+## <a id="introduction">Introduction</a>
 
-- 操作数据库便捷方法，包括数据查询、创建、删除、修改、事务单等等
+SqlUtil is a lightweight database tool library based on MySQL2 + SSH2, which supports:
 
-- 支持原生 SQL 查询
-
-- 安全防范，避免安全问题，比如 SQL 注入等
-
-- 使用连接池库缓存数据库链接，减少连接创建/释放操作
+- Support SSH remote debugging, convenient local development
+- Convenient methods of manipulating databases, including data query, creation, deletion, modification, transaction lists, etc
+- Support for native SQL queries
+- Security precautions to avoid security issues, such as SQL injection, etc
+- Use pool libraries to cache database links and reduce connection creation/release operations
 
 
 
-## <a id="install">安装</a>
+## <a id="install">Installing</a>
 
 ```
 yarn add sql-util -S
 ```
-
 ```
 npm install sql-util --save
 ```
 
-## <a id="quick">快速上手</a>
 
-```js
-// 创建链接
+## <a id="quick">Quick start</a>
+
+```javascript
+// create link
 const mySql = new SqlUtil({
   dbConfig: {
     host: "1.2.3.4",
@@ -50,9 +46,9 @@ const mySql = new SqlUtil({
     database: "xxxx",
     user: "xxxx",
     password: "xxxx",
-    connectionLimit: 5 // 默认5 可以不配置
+    connectionLimit: 5 // default 5 //You can not configure it
   },
-  // 仅在本地开发时使用ssh
+  // Use SSH only when developing locally
   ssh: __DEV__
     ? {
         srcHost: "127.0.0.1",
@@ -65,7 +61,6 @@ const mySql = new SqlUtil({
     : null
 });
 
-// 使用
 let searchRes = await mySql.select({
   table: "xxxx",
   where: {
@@ -74,55 +69,50 @@ let searchRes = await mySql.select({
 });
 ```
 
+## <a id="ssh-config">SSH configuration</a>
 
+- srcHost：The IP from which the local backend service is started
 
-## <a id="ssh-config">SSH 配置</a>
+- srcPort: The port on which the local backend service is started
 
-- srcHost：本地后台服务启动 ip
+- host: SSH server IP
 
-- srcPort: 本地后台服务启动端口
+- port: SSH server port
 
-- host: SSH 服务器 ip
+- username: SSH server account
 
-- port: SSH 服务器端口
-
-- username: SSH 服务器账户
-
-- password: SSH 服务器密码
-
-
-
-**注意**:  ssh 只能在本地开发时使用，线上最好不要使用，注意隔离开发和线上环境。
+- password: SSH server password
 
 
 
-## <a id="sql-methods-intro">SqlUtil 功能介绍</a>
-
-SqlUtil 实例属性和方法
-
-- [`sqlutil.dbConfig` ](#newSqlUtil)db 配置
-- [`sqlutil.ssh`](#newSqlUtil)ssh 配置
-- [`sqlutil.format()` ](#format)转义 sql 语句，将输入字符转为安全字符串
-- [`sqlutil.escape()` ](#escape)转义某个字符串字段
-- [`sqlutil.escapeId()`](#escapeId) 转义表字段
-- [`sqlutil.query()` ](#query)手动查询 sql 方法
-- [`sqlutil.handleRes()` ](#handleRes)返回执行结果
-- `sqlutil.setConnection(dbConfig)` 设置 db 连接配置
-- `sqlutil.raw()` 转义 sql 内置方法变量
-- `sqlutil.select()` 筛选数据方法
-- `sqlutil.count()` 统计方法
-- `sqlutil.insert()` 插入数据方法
-- `sqlutil.update()` 更新数据方法
-- `sqlutil.join()`多表查询方法
-- `sqlutil.delete()`删除数据方法
-- `sqlutil.find()`查找单一数据方法
+**attention**:  SSH can only be used for local development. It is best not to use it online. Be careful to isolate the development from the online environment.
 
 
 
-### <a id="newSqlUtil">创建 SqlUtil 连接实例</a>
+## <a id="sql-methods-intro">SqlUtil features</a>
+
+SqlUtil instance properties and methods
+
+- [`sqlutil.dbConfig` ](#newSqlUtil)db configuration
+- [`sqlutil.ssh`](#newSqlUtil)ssh configuration
+- [`sqlutil.format()` ](#format)Escape the SQL statement to convert the input character to a secure string
+- [`sqlutil.escape()` ](#escape)Escape a string field
+- [`sqlutil.escapeId()`](#escapeId) Escape table fields
+- [`sqlutil.query()` ](#query)Manually query SQL
+- [`sqlutil.handleRes()` ](#handleRes)Return the result of execution
+- `sqlutil.setConnection(dbConfig)` Set the DB connection configuration
+- `sqlutil.raw()` Escape SQL built-in method variables
+- `sqlutil.select()` 
+- `sqlutil.count()` 
+- `sqlutil.insert()` 
+- `sqlutil.update()` 
+- `sqlutil.join()`
+- `sqlutil.delete()`
+- `sqlutil.find()`
+
+### <a id="newSqlUtil">Crate SqlUtil Instance</a>
 
 ```javascript
-// 创建链接
 const mySql = new SqlUtil({
   dbConfig: {
     host: "1.2.3.4",
@@ -130,9 +120,9 @@ const mySql = new SqlUtil({
     database: "xxxx",
     user: "xxxx",
     password: "xxxx",
-    connectionLimit: 5 // 默认5 可以不配置
+    connectionLimit: 5
   },
-  // 仅在本地开发时使用ssh
+  // Use SSH only when developing locally
   ssh: __DEV__
     ? {
         srcHost: "127.0.0.1",
@@ -148,11 +138,11 @@ const mySql = new SqlUtil({
 
 
 
-### <a id="format">转义 SQL 语句</a>
+### <a id="format">Escape SQL statements</a>
 
-`??` 为字段或表名，`?` 为具体字段值，需要转义的字段
+`??` is the field or table name，`?` is the value of the specific field，which needs to be escaped.
 
-1.普通字 `? `段转义
+1.simple value `? ` escape
 
 ```javascript
 const name = 'lili'
@@ -160,9 +150,7 @@ const sql = sqlutil.format(`select * from table1 where name = ?;`,[name]);
 console.log(sql);//select * from table1 where name = 'lili';
 ```
 
-
-
-2.字段`??`转义
+2. Field `??`escape
 
 ```javascript
 const name = 'lili'
@@ -171,9 +159,7 @@ const sql = sqlutil.format(`select * from table1 where ?? = ?;`,[field,name]);
 console.log(sql);//select * from table1 where `name` = 'lili';
 ```
 
-
-
-3.数组和对象转义
+3.array and object escape
 
 ```javascript
 const name = 'milu'
@@ -195,9 +181,7 @@ const sql = sqlutil.format(`update ?? set ? where name = ?;`,['talble1',conditio
 console.log(sql);//update `table1` set `name` = 'milu', `age` = 18 where name = 'milu';
 ```
 
-
-
-4.内置函数不转义 `sqlutil.raw`
+4. use `sqlutil.raw` not to escape built-in function.
 
 ```javascript
 const name = 'milu'
@@ -209,9 +193,7 @@ const sql = sqlutil.format(`update ?? set ? where name = ?;`,[table,value,name])
 console.log(sql);//update `table1` set `date` = NOW() where name = 'milu';
 ```
 
-
-
-5.列表转义
+5.array list escape
 
 ```javascript
 const value = [['a', 'b'], ['c', 'd']];
@@ -219,9 +201,7 @@ const sql = sqlutil.format('?',[value])
 console.log(sql);//('a', 'b'), ('c', 'd')
 ```
 
-
-
-6.<a id="escapeId">表字段转义 `sqlutil.escapeId`</a>
+6.<a id="escapeId">table field escape `sqlutil.escapeId`</a>
 
 ```javascript
 const sorter = 'posts.date';
@@ -233,17 +213,13 @@ console.log(sql); // SELECT * FROM posts ORDER BY `posts`.`date`
 // sqlutil.escapeId('table.date',true); -> `table.date`
 ```
 
-
-
-7.<a id="escape">转义字符串</a>
+7.<a id="escape">escape string</a>
 
 ```javascript
 sqlutil.escape('abc\'d'); // -> "'aaa\'a'"
 ```
 
-
-
-### <a id="query">手动查询 sql</a>
+### <a id="query">Manually query SQL</a>
 
 ```javascript
 await sqlutil.query('select * from table1;');
@@ -253,15 +229,15 @@ await sqlutil.query(`insert into table1 (name,age) values('milu',18)`);
 
 
 
-### <a id="handleRes">返回统一的执行结果</a>
+### <a id="handleRes">Return the result of execution</a>
 
 ```javascript
-return sqlutil.handleRes(-1000,'未登录',{data:'data',other:'other info'});
-// 返回
+return sqlutil.handleRes(-1000,'unlogin',{data:'data',other:'other info'});
+// return
 {
   code:-1000,
   subcode: 0,
-  message:'未登录',
+  message:'unlogin',
   default: 0,
   data: 'data',
   other:'other info'
@@ -270,83 +246,62 @@ return sqlutil.handleRes(-1000,'未登录',{data:'data',other:'other info'});
 
 
 
-## <a id="sqlUtil-use">SqlUtil 方法使用</a>
+## <a id="sqlUtil-use">SqlUtil methods</a>
 
-注意：
+Attention：
 
-1. 所有的方法里，当 asSql 字段为 true 时，返回 sql 语句，否则**默认返回 sql 执行结果**。
-2. Where 语句默认对象写法，数组写法见[这里](#where-array)（推荐数组写法，更灵活）
+1. In all methods, if the asSql field is true, the SQL statement is returned. **Otherwise, the default SQL result is returned.**
+2. The WHERE statement defaults to object. See array notation [here](#where-array)（Recommends array writing method, more flexible）
 
+The following shows the use of common SQL statements
 
+- [select](#select)
+- [find](#find)
+- [insert](#insert)
+- [update](#update)
+- [delete](#delete)
+- [count](#count)
+- [join](#join)
+- [condition](#condition)
+- [Transaction](#task)
+- [raw SQL](#raw)
 
-以下展示常用的 sql 语句的用法
+### <a id="select">select</a>
 
-- [select 选择](#select)
-- [find 查找单一数据](#find)
-- [insert 插入](#insert)
-- [update 更新](#update)
-- [delete 删除](#delete)
-- [count 统计](#count)
-- [join 多表联查](#join)
-- [条件选择](#condition)
-- [事务](#task)
-- [raw 原生 SQL 操作](#raw)
+`sqlutil.select({ fields = [], table = "", where = null, groupby = "", order = "desc", limit = null, asSql = false })`
 
+#### Parameter
 
+| field name | default | need |
+| ---------- | ------- | ---- |
+| table      | ""      | yes  |
+| fields     | []      | no   |
+| where      | null    | no   |
+| groupby    | ""      | no   |
+| orderby    | ""      | no   |
+| order      | "desc"  | no   |
+| limit      | null    | no   |
+| asSql      | false   | no   |
 
-### <a id="select">select 选择</a>
-
-用法：`sqlutil.select({ fields = [], table = "", where = null, groupby = "", order = "desc", limit = null, asSql = false })`
-
-#### 参数
-
-| 字段名  | 默认值 | 说明            | 必需 |
-| ------- | ------ | --------------- | ---- |
-| table   | ""     | 表              | 是   |
-| fields  | []     | 列              | 否   |
-| where   | null   | 条件            | 否   |
-| groupby | ""     | 分组            | 否   |
-| orderby | ""     | 排序            | 否   |
-| order   | "desc" | 排序方式        | 否   |
-| limit   | null   | 分页            | 否   |
-| asSql   | false  | 是否返回sql语句 | 否   |
-
-#### 返回示例
+#### Return sample
 
 ```javascript
-{
-  code:0,
-  subcode: 0,
-  message:'success',
-  default: 0,
-  data: [{name: 'milu',age: 18}],
-}
+{  code:0,  subcode: 0,  message:'success',  default: 0,  data: [{name: 'milu',age: 18}],}
 ```
 
-
-
-1.选择全部字段
+1.Select all Fields
 
 ```sql
 select * from table1;
 ```
 
 ```javascript
-let res = await mySql.select({
-  table: "table1"
-});
-
-if (res.code === 0) {
-  res.data; // 返回数组
-  console.info("成功！");
-} else {
-  console.info("错误！");
-}
+let res = await mySql.select({  table: "table1"});if (res.code === 0) {  res.data;  console.info("success！");} else {  console.info("error！");}
 ```
 
 <br/>
 
-2.选择指定列
+2.Select the specified column
 
 ```sql
 select name,age from table1;
@@ -361,7 +316,7 @@ await mySql.select({
 
 <br/>
 
-3.条件选择
+3.Condition select
 
 ```sql
 select name,age from table1 where age=18 and name="lili";
@@ -378,16 +333,14 @@ await mySql.select({
 });
 ```
 
-更多条件请看[《条件选择》章节](#condition)
+more condition please see [《condition》chapter](#condition)
 
+### <a id="find">Find find a single data</a>
 
+`find` method is similar to `select` method，the different are：
 
-### <a id="find">find查找单一数据</a>
-
-`find`方法和`select`方法类似，差异在于：
-
-- limit 参数为 1，支持覆盖
-- 返回结果`res.data`不是数组，而是第一个数据项
+- `limit` value is 1，which supports coverage.
+- Returns the result `res.data`, not an array, but the first data item
 
 ```sql
 select age,sex from table1 where age=18 limit 1;
@@ -402,11 +355,11 @@ await mySql.find({
 });
 ```
 
-#### 返回示例
+#### Return sample
 
 ```javascript
 {
-  code: 0, // 0表示成功，非0表示失败
+  code: 0, // 0 means success, non-0 means failure
   data: {
     name: "xxx",
     age: 1,
@@ -417,11 +370,11 @@ await mySql.find({
 }
 ```
 
-### <a id="insert">insert插入</a>
+### <a id="insert">insert</a>
 
-用法：`sqlutil.insert({fields=[],table="",data=[]})`
+`sqlutil.insert({fields=[],table="",data=[]})`
 
-1.插入单行
+1.Insert one row
 
 ```sql
 INSERT INTO table_1 SET `age` = 1, `sex` = 1, `type` = 2, `created` = Now();
@@ -438,7 +391,7 @@ await mySql.insert({
   }
 });
 
-// 或者数组写法
+// or array type
 await sqlutil.insert({
   fields: ["age", "sex", "type", "created"],
   table: "table_1",
@@ -447,11 +400,11 @@ await sqlutil.insert({
 
 ```
 
-返回值中提供`insertId`表示新增数据的ID，形如：
+In the return value to provide ` insertId ` ID of the new data, like:
 
 ```javascript
 {
-  code: 0, // 0表示成功，非0表示失败
+  code: 0,
   data: {
     insertId: 20000061,
   },
@@ -459,7 +412,7 @@ await sqlutil.insert({
 }
 ```
 
-<br/>2.插入多行
+<br/>2.insert multiple rows
 
 ```javascript
 await mySql.insert({
@@ -472,117 +425,55 @@ await mySql.insert({
 });
 ```
 
-#### 返回示例
+#### Return sample
 
 ```json
-{
-  "code": 0, 
-  "subcode": 0, 
-  "message": "success", 
-  "default": 0, 
-  "data": {
-    "fieldCount": 0, 
-    "affectedRows": 1, 
-    "insertId": 17, 
-    "info": "", 
-    "serverStatus": 2, 
-    "warningStatus": 0
-  }
-}
-
+{  "code": 0,   "subcode": 0,   "message": "success",   "default": 0,   "data": {    "fieldCount": 0,     "affectedRows": 1,     "insertId": 17,     "info": "",     "serverStatus": 2,     "warningStatus": 0  }}
 ```
 
 
 
-### <a id="update">update 更新</a>
+### <a id="update">update</a>
 
-用法：`sqlutil.update({table="",data={},where=null})`
+`sqlutil.update({table="",data={},where=null})`
 
-> 注意：`插入的字段如果是SQL内置变量或方法`，如 `NOW()，CURRENT_TIMESTAMP`，必须使用`sqlutil.raw()`进行转义，否则会以普通字符串形式插入。
+> Note：`If the inserted field is a SQL built-in variable or method`，like  `NOW()，CURRENT_TIMESTAMP`，it must  use `sqlutil.raw()` to escape, Otherwise it will be inserted as a plain string.
 
 ```sql
 update table_1 SET `age` = 18, `sex` = 2, `updated` = Now() where `id` = 4;
 ```
 
 ```javascript
-await mySql.update({
-  table: "table_1",
-  data: {
-    age: 18,
-    sex: 2,
-    updated: mySql.raw("Now()")
-  },
-  where: {
-    id: 4
-  }
-});
+await mySql.update({  table: "table_1",  data: {    age: 18,    sex: 2,    updated: mySql.raw("Now()")  },  where: {    id: 4  }});
 ```
 
-#### 返回示例
+#### Return sample
 
 ```json
-{
-  "code": 0, 
-  "subcode": 0, 
-  "message": "success", 
-  "default": 0, 
-  "data": {
-    "fieldCount": 0, 
-    "affectedRows": 1, 
-    "insertId": 0, 
-    "info": "Rows matched: 1  Changed: 0  Warnings: 0", 
-    "serverStatus": 2, 
-    "warningStatus": 0, 
-    "changedRows": 0
-  }
-}
-
+{  "code": 0,   "subcode": 0,   "message": "success",   "default": 0,   "data": {    "fieldCount": 0,     "affectedRows": 1,     "insertId": 0,     "info": "Rows matched: 1  Changed: 0  Warnings: 0",     "serverStatus": 2,     "warningStatus": 0,     "changedRows": 0  }}
 ```
 
+### <a id="delete">delete</a>
 
-
-### <a id="delete">delete 删除数据</a>
-
-用法：`delete({ table = "", where = null, asSql = false })`
+`delete({ table = "", where = null, asSql = false })`
 
 ```sql
 delete from `table1` where `id` = 11 ;
 ```
 
 ```javascript
-await mySql.delete({
-  table: "table1",
-  where: {
-    id: 11
-  }
-});
+await mySql.delete({  table: "table1",  where: {    id: 11  }});
 ```
 
-#### 返回示例
+#### Return sample
 
 ```json
-{
-  "code": 0, 
-  "subcode": 0, 
-  "message": "success", 
-  "default": 0, 
-  "data": {
-    "fieldCount": 0, 
-    "affectedRows": 1, 
-    "insertId": 0, 
-    "info": "", 
-    "serverStatus": 2, 
-    "warningStatus": 0
-  }
-}
-
+{  "code": 0,   "subcode": 0,   "message": "success",   "default": 0,   "data": {    "fieldCount": 0,     "affectedRows": 1,     "insertId": 0,     "info": "",     "serverStatus": 2,     "warningStatus": 0  }}
 ```
 
+### <a id="count">count</a>
 
-
-### <a id="count">count 统计数量</a>
-
-用法：`sqlutil.count({ field = "", table = "", where = null })`
+`sqlutil.count({ field = "", table = "", where = null })`
 
 ```sql
 select count(`id`) as total from `table1` where `age` >= 18 ;
@@ -592,34 +483,38 @@ select count(`id`) as total from `table1` where `age` >= 18 ;
 let res = await mySql.count({  table: "table1",  field: "id",  where: {    age: {      value: 18,      condition: ">="    }  }});
 ```
 
-返回值中`total`表示数量，形如：
+In return value, `total` means the number of statistics，like：
 
 ```javascript
-{  code: 0, // 0表示成功，非0表示失败  data: {    total: 14  },  message: "xxxxx"}
+{  code: 0,  data: {    total: 14  },  message: "xxxxx"}
 ```
 
-### <a id="join">join 多表联查</a>
+### <a id="join"><a id="join">join</a>
 
-用法：`sqlutil.join({ leftTable = "", leftFields =[], rightTable = "", rightFields= [], joinCondition= "", where = null, groupby = "", orderby= "", order = "desc", limit = null, total = false, asSql = false })`
+`sqlutil.join({ leftTable = "", leftFields =[], rightTable = "", rightFields= [], joinCondition= "", where = null, groupby = "", orderby= "", order = "desc", limit = null, total = false, asSql = false })`
 
-#### 参数
+#### Parameters
 
-| 字段名        | 默认值 | 说明                                          | 必需 |
-| ------------- | ------ | --------------------------------------------- | ---- |
-| leftTable     | ""     | 左表                                          | 是   |
-| leftFields    | []     | 左边字段                                      | 是   |
-| rightTable    | ""     | 右表                                          | 是   |
-| rightFields   | []     | 右表字段                                      | 是   |
-| joinCondition | ""     | 连接条件                                      | 是   |
-| where         | null   | 查询条件                                      | 否   |
-| groupby       | ""     | 分组                                          | 否   |
-| orderby       | ""     | 排序                                          | 否   |
-| order         | "desc" | 排序方式                                      | 否   |
-| limit         | null   | 分页                                          | 否   |
-| total         | false  | //ture的时候为查询全部数据，limit字段此时失效 | 否   |
-| asSql         | false  | 是否返回sql语句                               | 否   |
+| Field name    | default | must |
+| ------------- | ------- | ---- |
+| leftTable     | ""      | yes  |
+| leftFields    | []      | yes  |
+| rightTable    | ""      | yes  |
+| rightFields   | []      | yes  |
+| joinCondition | ""      | yes  |
+| where         | null    | no   |
+| groupby       | ""      | no   |
+| orderby       | ""      | no   |
+| order         | "desc"  | no   |
+| limit         | null    | no   |
+| total         | false   | no   |
+| asSql         | false   | no   |
 
-1.指定表字段
+> Note: when `total`  is true, it means select all the data and  `limit` can be no use
+
+</a>
+
+1.Specify table fields
 
 ```sql
 select `table1`.`name` as `name`,`table1`.`age` as `age`,`table1`.`b` as `b`,`table2`.`c` as `c`,`table2`.`d` as `d` from `table1` `table1`,`table2` `table2` where `table1`.`name` = `table2`.`name` and `table2`.`name` >= 11 ;
@@ -633,7 +528,7 @@ await mySql.join({
   rightFields: ["c", "d"],
   joinCondition: "name",
   where: {
-    'table2.age': { // 指定表字段
+    'table2.age': { // Specify table fields
       value: 11,
       condition: '>='
     }
@@ -644,86 +539,51 @@ await mySql.join({
 
 <br/>
 
-2.表别名
+2.Table alias
 
 ```javascript
-await mySql.join({
-  leftTable: "table1 as extra",
-  leftFields: ["name", "age", "b"],
-  rightTable: "table2",
-  rightFields: ["c", "d"],
-  joinCondition: "name",
-  where: {
-    'extra.age': { // 表别名
-      value: 11,
-      condition: '>='
-    }
-  },
-  total: false
-});
+await mySql.join({  leftTable: "table1 as extra",  leftFields: ["name", "age", "b"],  rightTable: "table2",  rightFields: ["c", "d"],  joinCondition: "name",  where: {    'extra.age': { // alias      value: 11,      condition: '>='    }  },  total: false});
 ```
 
-更复杂的查询请结合 sqlutil.format 手动编写 sql 语句
+For more complex queries, write SQL statements manually with `sqlutil.format `.
 
-### <a id="condition">条件选择</a>
 
-#### 分页
+
+### <a id="condition">Condition</a>
+
+#### Paging
 
 ```sql
 select name,age from table1 limit 30,10;
 ```
 
 ```javascript
-await mySql.select({
-  fields: ["name", "age"],
-  table: "table1",
-  limit: {
-    start: 30,
-    size: 10
-  }
-});
+await mySql.select({  fields: ["name", "age"],  table: "table1",  limit: {    start: 30,    size: 10  }});
 ```
 
-#### 模糊选择
+#### 
+
+#### Fuzzy selection
 
 ```sql
 select name,age from table1 where name like "%ju%";
 ```
 
 ```javascript
-await mySql.select({
-  fields: ["name", "age"],
-  table: "table1",
-  where: {
-    name: {
-      value: "ju",
-      like: true
-    }
-  }
-});
+await mySql.select({  fields: ["name", "age"],  table: "table1",  where: {    name: {      value: "ju",      like: true    }  }});
 ```
 
-#### 位置查询
+#### Location query
 
 ```sql
 select name,age from table1 where age=18 and position('milu' in name);
 ```
 
 ```js
-await mySql.select({
-  fields: ["name", "age"],
-  table: "table1",
-  where: {
-    age: 18,
-    name: {
-      value: "milu",
-      position: true
-    }
-  }
-});
+await mySql.select({  fields: ["name", "age"],  table: "table1",  where: {    age: 18,    name: {      value: "milu",      position: true    }  }});
 ```
 
-#### 分组排序
+#### Grouping sorting
 
 ```sql
 select name,age from `table1` where `age` = 18 group by `sex` order by `brithday` desc;
@@ -742,7 +602,7 @@ await mySql.select({
 });
 ```
 
-#### 选择范围
+#### Select range
 
 ```sql
 select name,age from table1 where age in (12,34,1,6,7)
@@ -758,7 +618,7 @@ await mySql.select({
 });
 ```
 
-1.或大于小于
+1.greater than or less than
 
 ```sql
 select * from table1 where age between 3 and 5;
@@ -778,7 +638,7 @@ await mySql.select({
 
 <br/>
 
-2.大于小于取反
+2.greater than or less than inverse
 
 ```sql
 select * from table1 where age not between 3 and 5;
@@ -797,11 +657,11 @@ await mySql.select({
 });
 ```
 
-#### 组合条件
+#### Combination conditions
 
 1.(=,>,>=,<,<=)
 
-<a id="where-array">where 条件数组写法</a>，支持重复字段，字段名 field 写在对象里面。其他条件跟对象写法一致
+<a id="where-array">`where ` array notation</a>，supports duplicate fields. Field names are written inside the object. The other conditions are the same as the object notation.
 
 ```sql
 select * from table1 where age > 3 and age <= 5;
@@ -849,51 +709,28 @@ await sqlutil.select({
 
 <br/>
 
-3.优先查询组合条件，combineCondition 可以递归组合条件，`combineCondition.where`就和条件语法完全一致：
+3.Prioritize query combination conditions，`combineCondition`can combine conditions recursively，`combineCondition.where` is exactly the same as the conditional syntax：
 
 ```sql
 select age, name from table1 where age=1 and (type=2 or (name like "luck" and type=8));
 ```
 
 ```javascript
-await mySql.select({
-  table: "table1",
-  fields: ["age", "name"],
-  where: {
-    age: 1,
-    combineCondition: {
-      where: {
-        type: 2,
-        combineCondition: {
-          where: {
-            name: {
-              value: "luck",
-              like: true
-            },
-            type: 8
-          },
-          or: true
-        }
-      }
-    }
-  }
-});
+await mySql.select({  table: "table1",  fields: ["age", "name"],  where: {    age: 1,    combineCondition: {      where: {        type: 2,        combineCondition: {          where: {            name: {              value: "luck",              like: true            },            type: 8          },          or: true        }      }    }  }});
 ```
 
+### <a id="task">Transaction</a>
 
+`sqlUtil` support `runTransaction` method to handle transactions，the method supports：
 
-### <a id="task">事务</a>
-
-`sqlUtil` 提供`runTransaction`方法处理事务，该方法中提供：
-
-- 一个新的 `sqlUtil` 实例，用法和上述一致，在事务中**必须使用该新实例**操作数据库
-- 通过`rollback()`可以回滚事务执行的所有操作
-- 当事务全部完成时，调用`commit()`用于提交事务。主要用于**提前**提交事务完成。
+- A new instance of 'sqlUtil' with the same usage as above. **It must be used ** to manipulate the database in a transaction
+- All operations performed by the transaction can be rolled back by `rollback()`
+- When the transaction is complete, `commit()` is called to commit the transaction. It is mainly used to **pre-commit** transaction completion.
 
 ```javascript
 let taskRes = await mySql.runTransaction(
   async ({ sqlUtil: newSql, rollback, commit }) => {
-    // 事务内必须使用新实例newSql进行操作，用法和mySql一致
+    // A new instance newSql must be used to operate within the transaction,
     const modRes = await newSql.find({
       table: "xxx",
       where: {
@@ -901,7 +738,7 @@ let taskRes = await mySql.runTransaction(
       }
     });
 
-    // 可以将错误结果通过rollback返回，方便内部输入日志
+    // Error results can be returned via rollback() for internal input logging
     if (modRes.code !== 0) {
       return rollback(modRes);
     }
@@ -919,21 +756,21 @@ let taskRes = await mySql.runTransaction(
       return rollback(updateRes);
     }
 
-    // commit()是可选的
+    // commit()is optional
     commit();
   }
 );
 
 if (taskRes.code === 0) {
-  console.info("事务成功！");
+  console.info("success！");
 } else {
-  console.info("事务失败！");
+  console.info("error！");
 }
 ```
 
-`commit()`是可选的，可以不调用，`runTransaction(cb)`监听到 `cb `函数完成时，如果判断没有调用过 `rollback()` 并且代码没有报错，就会自动提交 `commit`。
+`commit()` is optional and may not be called. When the `runTransaction(CB)` listens for the `CB` function to complete, it automatically commits the `commit` if it determines that `rollback()` has not been called and the code does not report an error.
 
-`commit()`主要使用在**语义化的**地表示**提前完成事务**的场景：
+`Commit()` is primarily used semantically to indicate the early completion of a transaction:
 
 ```javascript
 await mySql.runTransaction(
@@ -949,7 +786,7 @@ await mySql.runTransaction(
       return rollback(modRes);
     }
 
-    // 如果人数过长，删除多余数据
+    // If the number of people is too much, delete the redundant data
     if (userRes.data.length >= 20) {
       await newSql.delete({
         table: "xxx",
@@ -957,96 +794,94 @@ await mySql.runTransaction(
           age: 18
         }
       });
-      // 提前完成事务
+      // pre-commit transaction
       return commit();
     }
 
-    // 其他代码操作....
+    // other....
   }
 );
 ```
 
-### <a id="raw">raw 原生 SQL 操作</a>
+### <a id="raw">raw SQL</a>
 
-使用`.format()`方法生成 SQL 语句，基本用法：
+Use `.format()`method to create SQL statement，basic usage：
 
-> format 函数基于[sqlstring 官方库 ](https://github.com/mysqljs/sqlstring)实现的，具体说明看官方文档
+> format function is based on [sqlstring ](https://github.com/mysqljs/sqlstring)，please see the official document for more details.
 
 ```javascript
 const SqlUtil = require("@tencent/kg-sqlutil");
 
 const mySql = new SqlUtil({ /* ... */ })
 
-// 1. ?表示对插入值进行转义
+// 1. ? represents the escape of the inserted value
 const sql = mySql.format(`select * from table1 where name = ?;`, ["lulu"]);
 
-// 2. 不需要转义的插入值，应该用双问号??
+// 2. Inserted values that do not need to be escaped should use a double question mark??
 const sql = mySql.format(`insert into ?? set name = ?;`, ["table1", "lulu"]);
 
-// 3. 使用raw()方法表示插入值为“原生SQL代码”，注意raw对应一个问号
+// 3. Use the raw() method to indicate that the insert value is "native SQL code." Note that raw corresponds to a question mark
 const sql = mySql.format(`insert into ?? set created = ?;`, [
   "table1",
   mySql.raw("NOW()")
 ]);
 ```
 
-最后使用`.query()`方法执行上述生成的 SQL 语句：
+Finally, execute the generated SQL statement using the `.query() `method：
 
 ```javascript
 let res = await mySql.query(sql);
 
 if (res.code === 0) {
-  console.info("成功！");
+  console.info("success！");
 } else {
-  console.info("失败！");
+  console.info("error！");
 }
 ```
 
+## <a id="errorCode">ErrorCode</a>
 
-
-## <a id="errorCode">错误码</a>
-
-| 类型  | 说明                  |
-| ----- | --------------------- |
-| 0     | 操作成功              |
-| -100x | 数据库连接相关的错误  |
-| -200x | sql语句使用相关的错误 |
-
-### 连接相关
-
-| 类型  | 说明                                 |
+| Type  | Instructions                         |
 | ----- | ------------------------------------ |
-| 0     | 操作成功                             |
-| -1003 | 1. 连接数据失败<br />2. 事务启动失败 |
-| -1004 | 查询数据失败                         |
-| -1005 | 连接数据失败,连接池为空,请检查配置   |
-| -1006 | 事务提交失败                         |
-| -1007 | 事务执行失败                         |
+| 0     | successful                           |
+| -100x | Error related to database connection |
+| -200x | Error related to SQL statement       |
 
-### sql语句相关
+### Database related
+
+| type  | Instructions                                                 |
+| ----- | ------------------------------------------------------------ |
+| 0     | successful                                                   |
+| -1003 | 1. Connection failed<br />2. Transaction startup failed      |
+| -1004 | Data query failed                                            |
+| -1005 | Connection failed, connection pool is empty, please check configuration |
+| -1006 | Transaction submission failed                                |
+| -1007 | Transaction execution failed                                 |
+
+### SQL related
 
 #### -2001
 
-| 说明              |
-| ----------------- |
-| 未配置数据表table |
+| Instructions                        |
+| ----------------------------------- |
+| Database table is not configured |
 
 #### -2002
 
-| 方法   | 说明                                                         |
-| ------ | ------------------------------------------------------------ |
-| count  | 未指定字段统计                                               |
-| insert | 未配置表字段fields                                           |
-| update | update条件未配置，有可能影响全部数据，请配置where字段。如需绕过请手动编写sql语句。 |
-| delete | delete条件未配置，有可能影响全部数据，请配置delete字段。如需绕过请手动编写sql语句。 |
-| join   | 1. 未指定字段 leftFields 或 rightFields<br />2. 未指定连接字段 joinCondition |
+| Methods | Instructions                                                 |
+| ------- | ------------------------------------------------------------ |
+| count   | Field `field` is not specified                               |
+| insert  | Field `field` is not specified                               |
+| update  | Field `where` is not specified which might affect all the data. please configure the `where` field.If you do not need WHERE, write the SQL statement manually. |
+| delete  | Field `delete` is not specified which might affect all the data. please configure the `delete` field.If you do not need DELETE, write the SQL statement manually. |
+| join    | 1. Field `leftFields` or `rightFields` is not specified<br />2. Field `joinCondition` is not specified |
 
 #### -2003
 
-| 方法   | 说明                         |
-| ------ | ---------------------------- |
-| insert | 插入字段不能为空             |
-| join   | 连接字段为数组时必须传两个值 |
+| Methods | Instructions                                             |
+| ------- | -------------------------------------------------------- |
+| insert  | The insert field `data` cannot be empty                  |
+| join    | Two values must be passed when joinCondition is an array |
 
 
 

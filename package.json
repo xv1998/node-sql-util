@@ -28,6 +28,10 @@
   "files": [
     "dist"
   ],
+  "contributors": [
+    "xv <xv1324841784@gmail.com>",
+    "sqlstring(https://github.com/mysqljs/sqlstring)"
+  ],
   "publishConfig": {
     "registry": "https://www.npmjs.com/package/node-sql-util"
   },
@@ -36,10 +40,15 @@
     "url": "https://github.com/xv1998/sql-util.git"
   },
   "scripts": {
+    "build": "tsc --build",
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "dependencies": {
     "mysql2": "^2.2.5",
     "ssh2": "^0.8.9"
+  },
+  "devDependencies": {
+    "@types/node": "^16.3.3",
+    "typescript": "^4.3.5"
   }
 }

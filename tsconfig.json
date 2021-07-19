@@ -3,11 +3,14 @@
     "outDir": "dist",
     "module": "commonjs",
     "target": "es2020",
+    "strict": true,
+    "moduleResolution": "node",
     "rootDir": "lib",
     "baseUrl": ".",
-    "composite": true
+    "composite": true,
+    "esModuleInterop": true
   },
   "include": ["lib"],
-  "extends": "../../tsconfig.json",
+  "exclude": ["node_modules","dist"],
   "references": []
 }
