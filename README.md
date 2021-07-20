@@ -272,7 +272,8 @@ The following shows the use of common SQL statements
 
 ### <a id="select">select</a>
 
-`sqlutil.select({
+```js
+mySql.select({
   fields = [],
   table = "",
   where = null,
@@ -280,7 +281,10 @@ The following shows the use of common SQL statements
   order = "desc",
   limit = null,
   asSql = false
-})`
+})
+```
+
+
 
 #### Parameter
 
@@ -407,11 +411,15 @@ await mySql.find({
 
 ### <a id="insert">insert</a>
 
-`sqlutil.insert({
+```js
+mySql.insert({
   fields = [],
   table = "",
   data = []
-})`
+})
+```
+
+
 
 1.Insert one row
 
@@ -487,11 +495,15 @@ await mySql.insert({
 
 ### <a id="update">update</a>
 
-`sqlutil.update({
+```js
+mySql.update({
   table = "",
   data = {},
   where = null
-})`
+})
+```
+
+
 
 > Note：`If the inserted field is a SQL built-in variable or method`，like  `NOW()，CURRENT_TIMESTAMP`，it must  use `sqlutil.raw()` to escape, Otherwise it will be inserted as a plain string.
 
@@ -535,11 +547,15 @@ await mySql.update({
 
 ### <a id="delete">delete</a>
 
-`delete({
+```js
+mySql.delete({
   table = "",
   where = null,
   asSql = false
-})`
+})
+```
+
+
 
 ```sql
 delete from `table1` where `id` = 11 ;
@@ -575,11 +591,15 @@ await mySql.delete({
 
 ### <a id="count">count</a>
 
-`sqlutil.count({
+```js
+mySql.count({
   field = "",
   table = "",
   where = null
-})`
+})
+```
+
+
 
 ```sql
 select count(`id`) as total from `table1` where `age` >= 18 ;
@@ -612,7 +632,8 @@ In return value, `total` means the number of statistics，like：
 
 ### <a id="join"><a id="join">join</a>
 
-`sqlutil.join({
+```js
+mySql.join({
   leftTable = "",
   leftFields = [],
   rightTable = "",
@@ -625,7 +646,10 @@ In return value, `total` means the number of statistics，like：
   limit = null,
   total = false,
   asSql = false
-})`
+})
+```
+
+
 
 #### Parameters
 

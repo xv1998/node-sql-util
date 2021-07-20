@@ -299,7 +299,10 @@ return sqlutil.handleRes(-1000, '未登录', {
 
 ### <a id="select">select 选择</a>
 
-用法：`sqlutil.select({
+用法：
+
+```js
+mysql.select({
   fields = [],
   table = "",
   where = null,
@@ -307,7 +310,10 @@ return sqlutil.handleRes(-1000, '未登录', {
   order = "desc",
   limit = null,
   asSql = false
-})`
+})
+```
+
+
 
 #### 参数
 
@@ -430,11 +436,17 @@ await mySql.find({
 
 ### <a id="insert">insert插入</a>
 
-用法：`sqlutil.insert({
+用法：
+
+```js
+mysql.insert({
   fields = [],
   table = "",
   data = []
-})`
+})
+```
+
+
 
 1.插入单行
 
@@ -511,11 +523,17 @@ await mySql.insert({
 
 ### <a id="update">update 更新</a>
 
-用法：`sqlutil.update({
+用法：
+
+```js
+mysql.update({
   table = "",
   data = {},
   where = null
-})`
+})
+```
+
+
 
 > 注意：`插入的字段如果是SQL内置变量或方法`，如 `NOW()，CURRENT_TIMESTAMP`，必须使用`sqlutil.raw()`进行转义，否则会以普通字符串形式插入。
 
@@ -562,11 +580,17 @@ await mySql.update({
 
 ### <a id="delete">delete 删除数据</a>
 
-用法：`delete({
+用法：
+
+```js
+mysql.delete({
   table = "",
   where = null,
   asSql = false
-})`
+})
+```
+
+
 
 ```sql
 delete from `table1` where `id` = 11 ;
@@ -605,11 +629,17 @@ await mySql.delete({
 
 ### <a id="count">count 统计数量</a>
 
-用法：`sqlutil.count({
+用法：
+
+```js
+mySql.count({
   field = "",
   table = "",
   where = null
-})`
+})
+```
+
+
 
 ```sql
 select count(`id`) as total from `table1` where `age` >= 18 ;
@@ -642,7 +672,10 @@ let res = await mySql.count({
 
 ### <a id="join">join 多表联查</a>
 
-用法：`sqlutil.join({
+用法：
+
+```js
+mysql.join({
   leftTable = "",
   leftFields = [],
   rightTable = "",
@@ -655,7 +688,10 @@ let res = await mySql.count({
   limit = null,
   total = false,
   asSql = false
-})`
+})
+```
+
+
 
 #### 参数
 
