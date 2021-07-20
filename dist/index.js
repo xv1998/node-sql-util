@@ -421,7 +421,6 @@ class SqlUtil {
                 sql += this.format(` ${index === 0 ? '' : join} ${`${this.escapeId(key)} ${keyObject.not ? 'not between' : 'between'} ? and ?`} `, [value[0], value[1]]);
             }
             else if (combineCondition) {
-                console.log('============', this.getWhereCondition(keyObject.fields || keyObject.where));
                 sql += `${index === 0 ? '' : join} (${this.getWhereCondition(keyObject.fields || keyObject.where).replace(/^\s+?where\s/gi, ' ')}) `;
             }
             else {
@@ -518,7 +517,7 @@ class SqlUtil {
     async runTransaction(run, showlog = false) {
         await this.connectionInitPromise;
         if (!run) {
-            throw new Error('必须传入事务函数');
+            throw new Error('A transaction function must be passed in');
         }
         return new Promise(resolve => {
             this.pool.getConnection((e, connection) => {
