@@ -46,6 +46,7 @@ const mySql = new SqlUtil({
     database: "xxxx",
     user: "xxxx",
     password: "xxxx",
+    timezone: "",
     connectionLimit: 5 // default 5 //You can not configure it
   },
   // Use SSH only when developing locally
@@ -232,7 +233,10 @@ await sqlutil.query(`insert into table1 (name,age) values('milu',18)`);
 ### <a id="handleRes">Return the result of execution</a>
 
 ```javascript
-return sqlutil.handleRes(-1000,'unlogin',{data:'data',other:'other info'});
+return sqlutil.handleRes(-1000, 'unlogin', {
+  data: 'data',
+  other: 'other info'
+});
 // return
 {
   code:-1000,
@@ -268,7 +272,19 @@ The following shows the use of common SQL statements
 
 ### <a id="select">select</a>
 
-`sqlutil.select({ fields = [], table = "", where = null, groupby = "", order = "desc", limit = null, asSql = false })`
+```js
+mySql.select({
+  fields = [],
+  table = "",
+  where = null,
+  groupby = "",
+  order = "desc",
+  limit = null,
+  asSql = false
+})
+```
+
+
 
 #### Parameter
 
@@ -286,7 +302,16 @@ The following shows the use of common SQL statements
 #### Return sample
 
 ```javascript
-{  code:0,  subcode: 0,  message:'success',  default: 0,  data: [{name: 'milu',age: 18}],}
+{
+  code: 0,
+  subcode: 0,
+  message: 'success',
+  default: 0,
+  data: [{
+    name: 'milu',
+    age: 18
+  }],
+}
 ```
 
 1.Select all Fields
@@ -296,7 +321,15 @@ select * from table1;
 ```
 
 ```javascript
-let res = await mySql.select({  table: "table1"});if (res.code === 0) {  res.data;  console.info("success！");} else {  console.info("error！");}
+let res = await mySql.select({
+  table: "table1"
+});
+if (res.code === 0) {
+  res.data;
+  console.info("success！");
+} else {
+  console.info("error！");
+}
 ```
 
 <br/>
@@ -344,6 +377,12 @@ more condition please see [《condition》chapter](#condition)
 
 ```sql
 select age,sex from table1 where age=18 limit 1;
+```
+
+
+
+```javascript
+
 await mySql.find({
   table: "table1",
   fields: ["age", "sex"],
@@ -372,7 +411,15 @@ await mySql.find({
 
 ### <a id="insert">insert</a>
 
-`sqlutil.insert({fields=[],table="",data=[]})`
+```js
+mySql.insert({
+  fields = [],
+  table = "",
+  data = []
+})
+```
+
+
 
 1.Insert one row
 
@@ -428,14 +475,35 @@ await mySql.insert({
 #### Return sample
 
 ```json
-{  "code": 0,   "subcode": 0,   "message": "success",   "default": 0,   "data": {    "fieldCount": 0,     "affectedRows": 1,     "insertId": 17,     "info": "",     "serverStatus": 2,     "warningStatus": 0  }}
+{
+  "code": 0,
+  "subcode": 0,
+  "message": "success",
+  "default": 0,
+  "data": {
+    "fieldCount": 0,
+    "affectedRows": 1,
+    "insertId": 17,
+    "info": "",
+    "serverStatus": 2,
+    "warningStatus": 0
+  }
+}
 ```
 
 
 
 ### <a id="update">update</a>
 
-`sqlutil.update({table="",data={},where=null})`
+```js
+mySql.update({
+  table = "",
+  data = {},
+  where = null
+})
+```
+
+
 
 > Note：`If the inserted field is a SQL built-in variable or method`，like  `NOW()，CURRENT_TIMESTAMP`，it must  use `sqlutil.raw()` to escape, Otherwise it will be inserted as a plain string.
 
@@ -444,54 +512,144 @@ update table_1 SET `age` = 18, `sex` = 2, `updated` = Now() where `id` = 4;
 ```
 
 ```javascript
-await mySql.update({  table: "table_1",  data: {    age: 18,    sex: 2,    updated: mySql.raw("Now()")  },  where: {    id: 4  }});
+await mySql.update({
+  table: "table_1",
+  data: {
+    age: 18,
+    sex: 2,
+    updated: mySql.raw("Now()")
+  },
+  where: {
+    id: 4
+  }
+});
 ```
 
 #### Return sample
 
 ```json
-{  "code": 0,   "subcode": 0,   "message": "success",   "default": 0,   "data": {    "fieldCount": 0,     "affectedRows": 1,     "insertId": 0,     "info": "Rows matched: 1  Changed: 0  Warnings: 0",     "serverStatus": 2,     "warningStatus": 0,     "changedRows": 0  }}
+  {
+    "code": 0,
+    "subcode": 0,
+    "message": "success",
+    "default": 0,
+    "data": {
+      "fieldCount": 0,
+      "affectedRows": 1,
+      "insertId": 0,
+      "info": "Rows matched: 1  Changed: 0  Warnings: 0",
+      "serverStatus": 2,
+      "warningStatus": 0,
+      "changedRows": 0
+    }
+  }
 ```
 
 ### <a id="delete">delete</a>
 
-`delete({ table = "", where = null, asSql = false })`
+```js
+mySql.delete({
+  table = "",
+  where = null,
+  asSql = false
+})
+```
+
+
 
 ```sql
 delete from `table1` where `id` = 11 ;
 ```
 
 ```javascript
-await mySql.delete({  table: "table1",  where: {    id: 11  }});
+await mySql.delete({
+  table: "table1",
+  where: {
+    id: 11
+  }
+});
 ```
 
 #### Return sample
 
 ```json
-{  "code": 0,   "subcode": 0,   "message": "success",   "default": 0,   "data": {    "fieldCount": 0,     "affectedRows": 1,     "insertId": 0,     "info": "",     "serverStatus": 2,     "warningStatus": 0  }}
+{
+  "code": 0,
+  "subcode": 0,
+  "message": "success",
+  "default": 0,
+  "data": {
+    "fieldCount": 0,
+    "affectedRows": 1,
+    "insertId": 0,
+    "info": "",
+    "serverStatus": 2,
+    "warningStatus": 0
+  }
+}
 ```
 
 ### <a id="count">count</a>
 
-`sqlutil.count({ field = "", table = "", where = null })`
+```js
+mySql.count({
+  field = "",
+  table = "",
+  where = null
+})
+```
+
+
 
 ```sql
 select count(`id`) as total from `table1` where `age` >= 18 ;
 ```
 
 ```javascript
-let res = await mySql.count({  table: "table1",  field: "id",  where: {    age: {      value: 18,      condition: ">="    }  }});
+let res = await mySql.count({
+  table: "table1",
+  field: "id",
+  where: {
+    age: {
+      value: 18,
+      condition: ">="
+    }
+  }
+});
 ```
 
 In return value, `total` means the number of statistics，like：
 
 ```javascript
-{  code: 0,  data: {    total: 14  },  message: "xxxxx"}
+{
+  code: 0,
+  data: {
+    total: 14
+  },
+  message: "xxxxx"
+}
 ```
 
 ### <a id="join"><a id="join">join</a>
 
-`sqlutil.join({ leftTable = "", leftFields =[], rightTable = "", rightFields= [], joinCondition= "", where = null, groupby = "", orderby= "", order = "desc", limit = null, total = false, asSql = false })`
+```js
+mySql.join({
+  leftTable = "",
+  leftFields = [],
+  rightTable = "",
+  rightFields = [],
+  joinCondition = "",
+  where = null,
+  groupby = "",
+  orderby = "",
+  order = "desc",
+  limit = null,
+  total = false,
+  asSql = false
+})
+```
+
+
 
 #### Parameters
 
@@ -517,7 +675,17 @@ In return value, `total` means the number of statistics，like：
 1.Specify table fields
 
 ```sql
-select `table1`.`name` as `name`,`table1`.`age` as `age`,`table1`.`b` as `b`,`table2`.`c` as `c`,`table2`.`d` as `d` from `table1` `table1`,`table2` `table2` where `table1`.`name` = `table2`.`name` and `table2`.`name` >= 11 ;
+select 
+`table1`.`name` as `name`,
+`table1`.`age` as `age`,
+`table1`.`b` as `b`,
+`table2`.`c` as `c`,
+`table2`.`d` as `d` 
+from 
+`table1` `table1`,
+`table2` `table2` 
+where 
+`table1`.`name` = `table2`.`name` and `table2`.`name` >= 11 ;
 ```
 
 ```javascript
@@ -542,7 +710,20 @@ await mySql.join({
 2.Table alias
 
 ```javascript
-await mySql.join({  leftTable: "table1 as extra",  leftFields: ["name", "age", "b"],  rightTable: "table2",  rightFields: ["c", "d"],  joinCondition: "name",  where: {    'extra.age': { // alias      value: 11,      condition: '>='    }  },  total: false});
+await mySql.join({
+  leftTable: "table1 as extra",
+  leftFields: ["name", "age", "b"],
+  rightTable: "table2",
+  rightFields: ["c", "d"],
+  joinCondition: "name",
+  where: {
+    'extra.age': { // alias      
+      value: 11,
+      condition: '>='
+    }
+  },
+  total: false
+});
 ```
 
 For more complex queries, write SQL statements manually with `sqlutil.format `.
@@ -558,7 +739,14 @@ select name,age from table1 limit 30,10;
 ```
 
 ```javascript
-await mySql.select({  fields: ["name", "age"],  table: "table1",  limit: {    start: 30,    size: 10  }});
+await mySql.select({
+  fields: ["name", "age"],
+  table: "table1",
+  limit: {
+    start: 30,
+    size: 10
+  }
+});
 ```
 
 #### 
@@ -570,7 +758,16 @@ select name,age from table1 where name like "%ju%";
 ```
 
 ```javascript
-await mySql.select({  fields: ["name", "age"],  table: "table1",  where: {    name: {      value: "ju",      like: true    }  }});
+await mySql.select({
+  fields: ["name", "age"],
+  table: "table1",
+  where: {
+    name: {
+      value: "ju",
+      like: true
+    }
+  }
+});
 ```
 
 #### Location query
@@ -580,7 +777,17 @@ select name,age from table1 where age=18 and position('milu' in name);
 ```
 
 ```js
-await mySql.select({  fields: ["name", "age"],  table: "table1",  where: {    age: 18,    name: {      value: "milu",      position: true    }  }});
+await mySql.select({
+  fields: ["name", "age"],
+  table: "table1",
+  where: {
+    age: 18,
+    name: {
+      value: "milu",
+      position: true
+    }
+  }
+});
 ```
 
 #### Grouping sorting
@@ -712,11 +919,36 @@ await sqlutil.select({
 3.Prioritize query combination conditions，`combineCondition`can combine conditions recursively，`combineCondition.where` is exactly the same as the conditional syntax：
 
 ```sql
-select age, name from table1 where age=1 and (type=2 or (name like "luck" and type=8));
+select 
+age, name 
+from table1 
+where 
+age=1 and (type=2 or (name like "luck" and type=8));
 ```
 
 ```javascript
-await mySql.select({  table: "table1",  fields: ["age", "name"],  where: {    age: 1,    combineCondition: {      where: {        type: 2,        combineCondition: {          where: {            name: {              value: "luck",              like: true            },            type: 8          },          or: true        }      }    }  }});
+await mySql.select({
+  table: "table1",
+  fields: ["age", "name"],
+  where: {
+    age: 1,
+    combineCondition: {
+      where: {
+        type: 2,
+        combineCondition: {
+          where: {
+            name: {
+              value: "luck",
+              like: true
+            },
+            type: 8
+          },
+          or: true
+        }
+      }
+    }
+  }
+});
 ```
 
 ### <a id="task">Transaction</a>

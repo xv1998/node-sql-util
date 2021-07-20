@@ -256,7 +256,10 @@ await sqlutil.query(`insert into table1 (name,age) values('milu',18)`);
 ### <a id="handleRes">返回统一的执行结果</a>
 
 ```javascript
-return sqlutil.handleRes(-1000,'未登录',{data:'data',other:'other info'});
+return sqlutil.handleRes(-1000, '未登录', {
+  data: 'data',
+  other: 'other info'
+});
 // 返回
 {
   code:-1000,
@@ -296,7 +299,21 @@ return sqlutil.handleRes(-1000,'未登录',{data:'data',other:'other info'});
 
 ### <a id="select">select 选择</a>
 
-用法：`sqlutil.select({ fields = [], table = "", where = null, groupby = "", order = "desc", limit = null, asSql = false })`
+用法：
+
+```js
+mysql.select({
+  fields = [],
+  table = "",
+  where = null,
+  groupby = "",
+  order = "desc",
+  limit = null,
+  asSql = false
+})
+```
+
+
 
 #### 参数
 
@@ -419,7 +436,17 @@ await mySql.find({
 
 ### <a id="insert">insert插入</a>
 
-用法：`sqlutil.insert({fields=[],table="",data=[]})`
+用法：
+
+```js
+mysql.insert({
+  fields = [],
+  table = "",
+  data = []
+})
+```
+
+
 
 1.插入单行
 
@@ -496,7 +523,17 @@ await mySql.insert({
 
 ### <a id="update">update 更新</a>
 
-用法：`sqlutil.update({table="",data={},where=null})`
+用法：
+
+```js
+mysql.update({
+  table = "",
+  data = {},
+  where = null
+})
+```
+
+
 
 > 注意：`插入的字段如果是SQL内置变量或方法`，如 `NOW()，CURRENT_TIMESTAMP`，必须使用`sqlutil.raw()`进行转义，否则会以普通字符串形式插入。
 
@@ -543,7 +580,17 @@ await mySql.update({
 
 ### <a id="delete">delete 删除数据</a>
 
-用法：`delete({ table = "", where = null, asSql = false })`
+用法：
+
+```js
+mysql.delete({
+  table = "",
+  where = null,
+  asSql = false
+})
+```
+
+
 
 ```sql
 delete from `table1` where `id` = 11 ;
@@ -582,25 +629,69 @@ await mySql.delete({
 
 ### <a id="count">count 统计数量</a>
 
-用法：`sqlutil.count({ field = "", table = "", where = null })`
+用法：
+
+```js
+mySql.count({
+  field = "",
+  table = "",
+  where = null
+})
+```
+
+
 
 ```sql
 select count(`id`) as total from `table1` where `age` >= 18 ;
 ```
 
 ```javascript
-let res = await mySql.count({  table: "table1",  field: "id",  where: {    age: {      value: 18,      condition: ">="    }  }});
+let res = await mySql.count({
+  table: "table1",
+  field: "id",
+  where: {
+    age: {
+      value: 18,
+      condition: ">="
+    }
+  }
+});
 ```
 
 返回值中`total`表示数量，形如：
 
 ```javascript
-{  code: 0, // 0表示成功，非0表示失败  data: {    total: 14  },  message: "xxxxx"}
+{
+  code: 0, // 0表示成功，非0表示失败  
+  data: {
+    total: 14
+  },
+  message: "xxxxx"
+}
 ```
 
 ### <a id="join">join 多表联查</a>
 
-用法：`sqlutil.join({ leftTable = "", leftFields =[], rightTable = "", rightFields= [], joinCondition= "", where = null, groupby = "", orderby= "", order = "desc", limit = null, total = false, asSql = false })`
+用法：
+
+```js
+mysql.join({
+  leftTable = "",
+  leftFields = [],
+  rightTable = "",
+  rightFields = [],
+  joinCondition = "",
+  where = null,
+  groupby = "",
+  orderby = "",
+  order = "desc",
+  limit = null,
+  total = false,
+  asSql = false
+})
+```
+
+
 
 #### 参数
 
@@ -622,7 +713,14 @@ let res = await mySql.count({  table: "table1",  field: "id",  where: {    age: 
 1.指定表字段
 
 ```sql
-select `table1`.`name` as `name`,`table1`.`age` as `age`,`table1`.`b` as `b`,`table2`.`c` as `c`,`table2`.`d` as `d` from `table1` `table1`,`table2` `table2` where `table1`.`name` = `table2`.`name` and `table2`.`name` >= 11 ;
+select 
+`table1`.`name` as `name`,
+`table1`.`age` as `age`,
+`table1`.`b` as `b`,
+`table2`.`c` as `c`,`table2`.`d` as `d` 
+from `table1` `table1`,`table2` `table2` 
+where 
+`table1`.`name` = `table2`.`name` and `table2`.`name` >= 11 ;
 ```
 
 ```javascript
