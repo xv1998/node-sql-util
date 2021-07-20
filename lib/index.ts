@@ -597,10 +597,6 @@ class SqlUtil {
           [value[0], value[1]]
         )
       } else if (combineCondition) {
-        console.log(
-          '============',
-          this.getWhereCondition(keyObject.fields || keyObject.where)
-        )
         sql += `${index === 0 ? '' : join} (${this.getWhereCondition(
           keyObject.fields || keyObject.where
         ).replace(/^\s+?where\s/gi, ' ')}) `
@@ -723,7 +719,7 @@ class SqlUtil {
     await this.connectionInitPromise
 
     if (!run) {
-      throw new Error('必须传入事务函数')
+      throw new Error('A transaction function must be passed in')
     }
 
     return new Promise(resolve => {

@@ -7,16 +7,13 @@ export function sqlTrim(sql: string): string {
 
 export const ErrorData = {
   notable: {
-    code: -2001,
-    message: '未配置数据表'
+    code: -2001
   },
   nofield: {
-    code: -2002,
-    message: '未配置表字段'
+    code: -2002
   },
   notEmtpy: {
-    code: -2003,
-    message: '插入字段不能为空'
+    code: -2003
   }
 }
 
