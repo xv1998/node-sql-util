@@ -5,9 +5,9 @@ English| [简体中文](./README_CN.md)
 - [Introduction](#introduction)
 - [Installing](install)
 - [Quick start](#quick)
+- [SqlUtil methods](#sqlUtil-use)
 - [SSH configuration](#ssh-config)
 - [SqlUtil features](#sql-methods-intro)
-- [SqlUtil methods](#sqlUtil-use)
 - [ErrorCode](#errorCode)
 - [License](#license)
 
@@ -58,222 +58,6 @@ let searchRes = await mySql.select({
   }
 });
 ```
-
-## <a id="ssh-config">SSH configuration [option feature]</a>
-
-```js
-// create connection
-const mySql = new SqlUtil({
-  dbConfig: {
-    host: "1.2.3.4",
-    port: "1000",
-    database: "xxxx",
-    user: "xxxx",
-    password: "xxxx",
-    timezone: "",
-    connectionLimit: 5 // default 5 //You can not configure it
-  },
-  // Use SSH only when developing locally
-  ssh: __DEV__
-    ? {
-        srcHost: "127.0.0.1",
-        srcPort: 8080,
-        host: "1.2.3.4",
-        port: 1000,
-        username: "xxx",
-        password: "xxxx"
-      }
-    : null
-});
-
-let searchRes = await mySql.select({
-  table: "xxxx",
-  where: {
-    id: 1
-  }
-});
-```
-
-
-
-- srcHost：The IP from which the local backend service is started
-
-- srcPort: The port on which the local backend service is started
-
-- host: SSH server IP
-
-- port: SSH server port
-
-- username: SSH server account
-
-- password: SSH server password
-
-
-
-**attention**:  SSH can only be used for local development. It is best not to use it online. Be careful to isolate the development from the online environment.
-
-
-
-## <a id="sql-methods-intro">SqlUtil features</a>
-
-SqlUtil instance properties and methods
-
-- [`sqlutil.dbConfig` ](#newSqlUtil)db configuration
-- [`sqlutil.ssh`](#newSqlUtil)ssh configuration
-- [`sqlutil.format()` ](#format)Escape the SQL statement to convert the input character to a secure string
-- [`sqlutil.escape()` ](#escape)Escape a string field
-- [`sqlutil.escapeId()`](#escapeId) Escape table fields
-- [`sqlutil.query()` ](#query)Manually query SQL
-- [`sqlutil.handleRes()` ](#handleRes)Return the result of execution
-- `sqlutil.setConnection(dbConfig)` Set the DB connection configuration
-- `sqlutil.raw()` Escape SQL built-in method variables
-- `sqlutil.select()` 
-- `sqlutil.count()` 
-- `sqlutil.insert()` 
-- `sqlutil.update()` 
-- `sqlutil.join()`
-- `sqlutil.delete()`
-- `sqlutil.find()`
-
-### <a id="newSqlUtil">Crate SqlUtil Instance</a>
-
-```javascript
-const mySql = new SqlUtil({
-  dbConfig: {
-    host: "1.2.3.4",
-    port: "1000",
-    database: "xxxx",
-    user: "xxxx",
-    password: "xxxx",
-    connectionLimit: 5
-  },
-  // Use SSH only when developing locally
-  ssh: __DEV__
-    ? {
-        srcHost: "127.0.0.1",
-        srcPort: 8080,
-        host: "1.2.3.4",
-        port: 1000,
-        username: "xxx",
-        password: "xxxx"
-      }
-    : null
-});
-```
-
-
-
-### <a id="format">Escape SQL statements</a>
-
-`??` is the field or table name，`?` is the value of the specific field，which needs to be escaped.
-
-1.simple value `? ` escape
-
-```javascript
-const name = 'lili'
-const sql = sqlutil.format(`select * from table1 where name = ?;`,[name]);
-console.log(sql);//select * from table1 where name = 'lili';
-```
-
-2. Field `??`escape
-
-```javascript
-const name = 'lili'
-const field= 'name'
-const sql = sqlutil.format(`select * from table1 where ?? = ?;`,[field,name]);
-console.log(sql);//select * from table1 where `name` = 'lili';
-```
-
-3.array and object escape
-
-```javascript
-const name = 'milu'
-const age = 18
-const field= ['name','age']
-const sql = sqlutil.format(`select ?? from table1 where name = ? and age = ?;`,[field,name,age]);
-console.log(sql);//select `name`,`age` from table1 where `name` = 'milu' and `age` = 18;
-```
-
-
-
-```javascript
-const name= 'milu';
-const condition = {
-  name : 'milu',
-  age : 18
-};
-const sql = sqlutil.format(`update ?? set ? where name = ?;`,['talble1',condition,name]);
-console.log(sql);//update `table1` set `name` = 'milu', `age` = 18 where name = 'milu';
-```
-
-4. use `sqlutil.raw` not to escape built-in function.
-
-```javascript
-const name = 'milu'
-const table = 'table1'
-const value = {
-	date : sqlutil.raw('NOW()')
-}
-const sql = sqlutil.format(`update ?? set ? where name = ?;`,[table,value,name]);
-console.log(sql);//update `table1` set `date` = NOW() where name = 'milu';
-```
-
-5.array list escape
-
-```javascript
-const value = [['a', 'b'], ['c', 'd']];
-const sql = sqlutil.format('?',[value])
-console.log(sql);//('a', 'b'), ('c', 'd')
-```
-
-6.<a id="escapeId">table field escape `sqlutil.escapeId`</a>
-
-```javascript
-const sorter = 'posts.date';
-const sql    = 'SELECT * FROM posts ORDER BY ' + sqlutil.escapeId(sorter);
-console.log(sql); // SELECT * FROM posts ORDER BY `posts`.`date`
-
-// sqlutil.escapeId('date'); -> `date`
-// sqlutil.escapeId('table.date'); -> `table`.`date`
-// sqlutil.escapeId('table.date',true); -> `table.date`
-```
-
-7.<a id="escape">escape string</a>
-
-```javascript
-sqlutil.escape('abc\'d'); // -> "'aaa\'a'"
-```
-
-### <a id="query">Manually query SQL</a>
-
-```javascript
-await sqlutil.query('select * from table1;');
-await sqlutil.query('update table1 set a=1 where id=1;');
-await sqlutil.query(`insert into table1 (name,age) values('milu',18)`);
-```
-
-
-
-### <a id="handleRes">Return the result of execution</a>
-
-```javascript
-return sqlutil.handleRes(-1000, 'unlogin', {
-  data: 'data',
-  other: 'other info'
-});
-// return
-{
-  code:-1000,
-  subcode: 0,
-  message:'unlogin',
-  default: 0,
-  data: 'data',
-  other:'other info'
-}
-```
-
-
-
 ## <a id="sqlUtil-use">SqlUtil methods</a>
 
 Attention：
@@ -1094,6 +878,222 @@ if (res.code === 0) {
   console.info("error！");
 }
 ```
+## <a id="ssh-config">SSH configuration [option feature]</a>
+
+```js
+// create connection
+const mySql = new SqlUtil({
+  dbConfig: {
+    host: "1.2.3.4",
+    port: "1000",
+    database: "xxxx",
+    user: "xxxx",
+    password: "xxxx",
+    timezone: "",
+    connectionLimit: 5 // default 5 //You can not configure it
+  },
+  // Use SSH only when developing locally
+  ssh: __DEV__
+    ? {
+        srcHost: "127.0.0.1",
+        srcPort: 8080,
+        host: "1.2.3.4",
+        port: 1000,
+        username: "xxx",
+        password: "xxxx"
+      }
+    : null
+});
+
+let searchRes = await mySql.select({
+  table: "xxxx",
+  where: {
+    id: 1
+  }
+});
+```
+
+
+
+- srcHost：The IP from which the local backend service is started
+
+- srcPort: The port on which the local backend service is started
+
+- host: SSH server IP
+
+- port: SSH server port
+
+- username: SSH server account
+
+- password: SSH server password
+
+
+
+**attention**:  SSH can only be used for local development. It is best not to use it online. Be careful to isolate the development from the online environment.
+
+
+
+## <a id="sql-methods-intro">SqlUtil features</a>
+
+SqlUtil instance properties and methods
+
+- [`sqlutil.dbConfig` ](#newSqlUtil)db configuration
+- [`sqlutil.ssh`](#newSqlUtil)ssh configuration
+- [`sqlutil.format()` ](#format)Escape the SQL statement to convert the input character to a secure string
+- [`sqlutil.escape()` ](#escape)Escape a string field
+- [`sqlutil.escapeId()`](#escapeId) Escape table fields
+- [`sqlutil.query()` ](#query)Manually query SQL
+- [`sqlutil.handleRes()` ](#handleRes)Return the result of execution
+- `sqlutil.setConnection(dbConfig)` Set the DB connection configuration
+- `sqlutil.raw()` Escape SQL built-in method variables
+- `sqlutil.select()` 
+- `sqlutil.count()` 
+- `sqlutil.insert()` 
+- `sqlutil.update()` 
+- `sqlutil.join()`
+- `sqlutil.delete()`
+- `sqlutil.find()`
+
+### <a id="newSqlUtil">Crate SqlUtil Instance</a>
+
+```javascript
+const mySql = new SqlUtil({
+  dbConfig: {
+    host: "1.2.3.4",
+    port: "1000",
+    database: "xxxx",
+    user: "xxxx",
+    password: "xxxx",
+    connectionLimit: 5
+  },
+  // Use SSH only when developing locally
+  ssh: __DEV__
+    ? {
+        srcHost: "127.0.0.1",
+        srcPort: 8080,
+        host: "1.2.3.4",
+        port: 1000,
+        username: "xxx",
+        password: "xxxx"
+      }
+    : null
+});
+```
+
+
+
+### <a id="format">Escape SQL statements</a>
+
+`??` is the field or table name，`?` is the value of the specific field，which needs to be escaped.
+
+1.simple value `? ` escape
+
+```javascript
+const name = 'lili'
+const sql = sqlutil.format(`select * from table1 where name = ?;`,[name]);
+console.log(sql);//select * from table1 where name = 'lili';
+```
+
+2.field `??`escape
+
+```javascript
+const name = 'lili'
+const field= 'name'
+const sql = sqlutil.format(`select * from table1 where ?? = ?;`,[field,name]);
+console.log(sql);//select * from table1 where `name` = 'lili';
+```
+
+3.array and object escape
+
+```javascript
+const name = 'milu'
+const age = 18
+const field= ['name','age']
+const sql = sqlutil.format(`select ?? from table1 where name = ? and age = ?;`,[field,name,age]);
+console.log(sql);//select `name`,`age` from table1 where `name` = 'milu' and `age` = 18;
+```
+
+
+
+```javascript
+const name= 'milu';
+const condition = {
+  name : 'milu',
+  age : 18
+};
+const sql = sqlutil.format(`update ?? set ? where name = ?;`,['talble1',condition,name]);
+console.log(sql);//update `table1` set `name` = 'milu', `age` = 18 where name = 'milu';
+```
+
+4.use `sqlutil.raw` not to escape built-in function.
+
+```javascript
+const name = 'milu'
+const table = 'table1'
+const value = {
+	date : sqlutil.raw('NOW()')
+}
+const sql = sqlutil.format(`update ?? set ? where name = ?;`,[table,value,name]);
+console.log(sql);//update `table1` set `date` = NOW() where name = 'milu';
+```
+
+5.array list escape
+
+```javascript
+const value = [['a', 'b'], ['c', 'd']];
+const sql = sqlutil.format('?',[value])
+console.log(sql);//('a', 'b'), ('c', 'd')
+```
+
+6.<a id="escapeId">table field escape `sqlutil.escapeId`</a>
+
+```javascript
+const sorter = 'posts.date';
+const sql    = 'SELECT * FROM posts ORDER BY ' + sqlutil.escapeId(sorter);
+console.log(sql); // SELECT * FROM posts ORDER BY `posts`.`date`
+
+// sqlutil.escapeId('date'); -> `date`
+// sqlutil.escapeId('table.date'); -> `table`.`date`
+// sqlutil.escapeId('table.date',true); -> `table.date`
+```
+
+7.<a id="escape">escape string</a>
+
+```javascript
+sqlutil.escape('abc\'d'); // -> "'aaa\'a'"
+```
+
+### <a id="query">Manually query SQL</a>
+
+```javascript
+await sqlutil.query('select * from table1;');
+await sqlutil.query('update table1 set a=1 where id=1;');
+await sqlutil.query(`insert into table1 (name,age) values('milu',18)`);
+```
+
+
+
+### <a id="handleRes">Return the result of execution</a>
+
+```javascript
+return sqlutil.handleRes(-1000, 'unlogin', {
+  data: 'data',
+  other: 'other info'
+});
+// return
+{
+  code:-1000,
+  subcode: 0,
+  message:'unlogin',
+  default: 0,
+  data: 'data',
+  other:'other info'
+}
+```
+
+
+
+
 
 ## <a id="errorCode">ErrorCode</a>
 

@@ -7,9 +7,9 @@
 - [介绍](#introduction)
 - [安装](install)
 - [快速上手](#quick)
+- [SqlUtil 方法使用](#sqlUtil-use)
 - [ssh配置](#ssh-config)
 - [SqlUtil 功能介绍](#sql-methods-intro)
-- [SqlUtil 方法使用](#sqlUtil-use)
 - [错误码](#errorCode)
 - [License](#license)
 
@@ -62,241 +62,6 @@ let searchRes = await mySql.select({
   }
 });
 ```
-
-
-
-## <a id="ssh-config">SSH 配置[option feature]</a>
-
-```js
-// 创建链接
-const mySql = new SqlUtil({
-  dbConfig: {
-    host: "1.2.3.4",
-    port: "1000",
-    database: "xxxx",
-    user: "xxxx",
-    password: "xxxx",
-    connectionLimit: 5 // 默认5 可以不配置
-  },
-  // 仅在本地开发时使用ssh
-  ssh: __DEV__
-    ? {
-        srcHost: "127.0.0.1",
-        srcPort: 8080,
-        host: "1.2.3.4",
-        port: 1000,
-        username: "xxx",
-        password: "xxxx"
-      }
-    : null
-});
-
-// 使用
-let searchRes = await mySql.select({
-  table: "xxxx",
-  where: {
-    id: 1
-  }
-});
-```
-
-
-
-- srcHost：本地后台服务启动 ip
-
-- srcPort: 本地后台服务启动端口
-
-- host: SSH 服务器 ip
-
-- port: SSH 服务器端口
-
-- username: SSH 服务器账户
-
-- password: SSH 服务器密码
-
-
-
-**注意**:  ssh 只能在本地开发时使用，线上最好不要使用，注意隔离开发和线上环境。
-
-
-
-## <a id="sql-methods-intro">SqlUtil 功能介绍</a>
-
-SqlUtil 实例属性和方法
-
-- [`sqlutil.dbConfig` ](#newSqlUtil)db 配置
-- [`sqlutil.ssh`](#newSqlUtil)ssh 配置
-- [`sqlutil.format()` ](#format)转义 sql 语句，将输入字符转为安全字符串
-- [`sqlutil.escape()` ](#escape)转义某个字符串字段
-- [`sqlutil.escapeId()`](#escapeId) 转义表字段
-- [`sqlutil.query()` ](#query)手动查询 sql 方法
-- [`sqlutil.handleRes()` ](#handleRes)返回执行结果
-- `sqlutil.setConnection(dbConfig)` 设置 db 连接配置
-- `sqlutil.raw()` 转义 sql 内置方法变量
-- `sqlutil.select()` 筛选数据方法
-- `sqlutil.count()` 统计方法
-- `sqlutil.insert()` 插入数据方法
-- `sqlutil.update()` 更新数据方法
-- `sqlutil.join()`多表查询方法
-- `sqlutil.delete()`删除数据方法
-- `sqlutil.find()`查找单一数据方法
-
-
-
-### <a id="newSqlUtil">创建 SqlUtil 连接实例</a>
-
-```javascript
-// 创建链接
-const mySql = new SqlUtil({
-  dbConfig: {
-    host: "1.2.3.4",
-    port: "1000",
-    database: "xxxx",
-    user: "xxxx",
-    password: "xxxx",
-    connectionLimit: 5 // 默认5 可以不配置
-  },
-  // 仅在本地开发时使用ssh
-  ssh: __DEV__
-    ? {
-        srcHost: "127.0.0.1",
-        srcPort: 8080,
-        host: "1.2.3.4",
-        port: 1000,
-        username: "xxx",
-        password: "xxxx"
-      }
-    : null
-});
-```
-
-
-
-### <a id="format">转义 SQL 语句</a>
-
-`??` 为字段或表名，`?` 为具体字段值，需要转义的字段
-
-1.普通字 `? `段转义
-
-```javascript
-const name = 'lili'
-const sql = sqlutil.format(`select * from table1 where name = ?;`,[name]);
-console.log(sql);//select * from table1 where name = 'lili';
-```
-
-
-
-2.字段`??`转义
-
-```javascript
-const name = 'lili'
-const field= 'name'
-const sql = sqlutil.format(`select * from table1 where ?? = ?;`,[field,name]);
-console.log(sql);//select * from table1 where `name` = 'lili';
-```
-
-
-
-3.数组和对象转义
-
-```javascript
-const name = 'milu'
-const age = 18
-const field= ['name','age']
-const sql = sqlutil.format(`select ?? from table1 where name = ? and age = ?;`,[field,name,age]);
-console.log(sql);//select `name`,`age` from table1 where `name` = 'milu' and `age` = 18;
-```
-
-
-
-```javascript
-const name= 'milu';
-const condition = {
-  name : 'milu',
-  age : 18
-};
-const sql = sqlutil.format(`update ?? set ? where name = ?;`,['talble1',condition,name]);
-console.log(sql);//update `table1` set `name` = 'milu', `age` = 18 where name = 'milu';
-```
-
-
-
-4.内置函数不转义 `sqlutil.raw`
-
-```javascript
-const name = 'milu'
-const table = 'table1'
-const value = {
-	date : sqlutil.raw('NOW()')
-}
-const sql = sqlutil.format(`update ?? set ? where name = ?;`,[table,value,name]);
-console.log(sql);//update `table1` set `date` = NOW() where name = 'milu';
-```
-
-
-
-5.列表转义
-
-```javascript
-const value = [['a', 'b'], ['c', 'd']];
-const sql = sqlutil.format('?',[value])
-console.log(sql);//('a', 'b'), ('c', 'd')
-```
-
-
-
-6.<a id="escapeId">表字段转义 `sqlutil.escapeId`</a>
-
-```javascript
-const sorter = 'posts.date';
-const sql    = 'SELECT * FROM posts ORDER BY ' + sqlutil.escapeId(sorter);
-console.log(sql); // SELECT * FROM posts ORDER BY `posts`.`date`
-
-// sqlutil.escapeId('date'); -> `date`
-// sqlutil.escapeId('table.date'); -> `table`.`date`
-// sqlutil.escapeId('table.date',true); -> `table.date`
-```
-
-
-
-7.<a id="escape">转义字符串</a>
-
-```javascript
-sqlutil.escape('abc\'d'); // -> "'aaa\'a'"
-```
-
-
-
-### <a id="query">手动查询 sql</a>
-
-```javascript
-await sqlutil.query('select * from table1;');
-await sqlutil.query('update table1 set a=1 where id=1;');
-await sqlutil.query(`insert into table1 (name,age) values('milu',18)`);
-```
-
-
-
-### <a id="handleRes">返回统一的执行结果</a>
-
-```javascript
-return sqlutil.handleRes(-1000, '未登录', {
-  data: 'data',
-  other: 'other info'
-});
-// 返回
-{
-  code:-1000,
-  subcode: 0,
-  message:'未登录',
-  default: 0,
-  data: 'data',
-  other:'other info'
-}
-```
-
-
-
 ## <a id="sqlUtil-use">SqlUtil 方法使用</a>
 
 注意：
@@ -1123,6 +888,238 @@ if (res.code === 0) {
   console.info("失败！");
 }
 ```
+
+
+## <a id="ssh-config">SSH 配置[option feature]</a>
+
+```js
+// 创建链接
+const mySql = new SqlUtil({
+  dbConfig: {
+    host: "1.2.3.4",
+    port: "1000",
+    database: "xxxx",
+    user: "xxxx",
+    password: "xxxx",
+    connectionLimit: 5 // 默认5 可以不配置
+  },
+  // 仅在本地开发时使用ssh
+  ssh: __DEV__
+    ? {
+        srcHost: "127.0.0.1",
+        srcPort: 8080,
+        host: "1.2.3.4",
+        port: 1000,
+        username: "xxx",
+        password: "xxxx"
+      }
+    : null
+});
+
+// 使用
+let searchRes = await mySql.select({
+  table: "xxxx",
+  where: {
+    id: 1
+  }
+});
+```
+
+
+
+- srcHost：本地后台服务启动 ip
+
+- srcPort: 本地后台服务启动端口
+
+- host: SSH 服务器 ip
+
+- port: SSH 服务器端口
+
+- username: SSH 服务器账户
+
+- password: SSH 服务器密码
+
+
+
+**注意**:  ssh 只能在本地开发时使用，线上最好不要使用，注意隔离开发和线上环境。
+
+
+
+## <a id="sql-methods-intro">SqlUtil 功能介绍</a>
+
+SqlUtil 实例属性和方法
+
+- [`sqlutil.dbConfig` ](#newSqlUtil)db 配置
+- [`sqlutil.ssh`](#newSqlUtil)ssh 配置
+- [`sqlutil.format()` ](#format)转义 sql 语句，将输入字符转为安全字符串
+- [`sqlutil.escape()` ](#escape)转义某个字符串字段
+- [`sqlutil.escapeId()`](#escapeId) 转义表字段
+- [`sqlutil.query()` ](#query)手动查询 sql 方法
+- [`sqlutil.handleRes()` ](#handleRes)返回执行结果
+- `sqlutil.setConnection(dbConfig)` 设置 db 连接配置
+- `sqlutil.raw()` 转义 sql 内置方法变量
+- `sqlutil.select()` 筛选数据方法
+- `sqlutil.count()` 统计方法
+- `sqlutil.insert()` 插入数据方法
+- `sqlutil.update()` 更新数据方法
+- `sqlutil.join()`多表查询方法
+- `sqlutil.delete()`删除数据方法
+- `sqlutil.find()`查找单一数据方法
+
+
+
+### <a id="newSqlUtil">创建 SqlUtil 连接实例</a>
+
+```javascript
+// 创建链接
+const mySql = new SqlUtil({
+  dbConfig: {
+    host: "1.2.3.4",
+    port: "1000",
+    database: "xxxx",
+    user: "xxxx",
+    password: "xxxx",
+    connectionLimit: 5 // 默认5 可以不配置
+  },
+  // 仅在本地开发时使用ssh
+  ssh: __DEV__
+    ? {
+        srcHost: "127.0.0.1",
+        srcPort: 8080,
+        host: "1.2.3.4",
+        port: 1000,
+        username: "xxx",
+        password: "xxxx"
+      }
+    : null
+});
+```
+
+
+
+### <a id="format">转义 SQL 语句</a>
+
+`??` 为字段或表名，`?` 为具体字段值，需要转义的字段
+
+1.普通字 `? `段转义
+
+```javascript
+const name = 'lili'
+const sql = sqlutil.format(`select * from table1 where name = ?;`,[name]);
+console.log(sql);//select * from table1 where name = 'lili';
+```
+
+
+
+2.字段`??`转义
+
+```javascript
+const name = 'lili'
+const field= 'name'
+const sql = sqlutil.format(`select * from table1 where ?? = ?;`,[field,name]);
+console.log(sql);//select * from table1 where `name` = 'lili';
+```
+
+
+
+3.数组和对象转义
+
+```javascript
+const name = 'milu'
+const age = 18
+const field= ['name','age']
+const sql = sqlutil.format(`select ?? from table1 where name = ? and age = ?;`,[field,name,age]);
+console.log(sql);//select `name`,`age` from table1 where `name` = 'milu' and `age` = 18;
+```
+
+
+
+```javascript
+const name= 'milu';
+const condition = {
+  name : 'milu',
+  age : 18
+};
+const sql = sqlutil.format(`update ?? set ? where name = ?;`,['talble1',condition,name]);
+console.log(sql);//update `table1` set `name` = 'milu', `age` = 18 where name = 'milu';
+```
+
+
+
+4.内置函数不转义 `sqlutil.raw`
+
+```javascript
+const name = 'milu'
+const table = 'table1'
+const value = {
+	date : sqlutil.raw('NOW()')
+}
+const sql = sqlutil.format(`update ?? set ? where name = ?;`,[table,value,name]);
+console.log(sql);//update `table1` set `date` = NOW() where name = 'milu';
+```
+
+
+
+5.列表转义
+
+```javascript
+const value = [['a', 'b'], ['c', 'd']];
+const sql = sqlutil.format('?',[value])
+console.log(sql);//('a', 'b'), ('c', 'd')
+```
+
+
+
+6.<a id="escapeId">表字段转义 `sqlutil.escapeId`</a>
+
+```javascript
+const sorter = 'posts.date';
+const sql    = 'SELECT * FROM posts ORDER BY ' + sqlutil.escapeId(sorter);
+console.log(sql); // SELECT * FROM posts ORDER BY `posts`.`date`
+
+// sqlutil.escapeId('date'); -> `date`
+// sqlutil.escapeId('table.date'); -> `table`.`date`
+// sqlutil.escapeId('table.date',true); -> `table.date`
+```
+
+
+
+7.<a id="escape">转义字符串</a>
+
+```javascript
+sqlutil.escape('abc\'d'); // -> "'aaa\'a'"
+```
+
+
+
+### <a id="query">手动查询 sql</a>
+
+```javascript
+await sqlutil.query('select * from table1;');
+await sqlutil.query('update table1 set a=1 where id=1;');
+await sqlutil.query(`insert into table1 (name,age) values('milu',18)`);
+```
+
+
+
+### <a id="handleRes">返回统一的执行结果</a>
+
+```javascript
+return sqlutil.handleRes(-1000, '未登录', {
+  data: 'data',
+  other: 'other info'
+});
+// 返回
+{
+  code:-1000,
+  subcode: 0,
+  message:'未登录',
+  default: 0,
+  data: 'data',
+  other:'other info'
+}
+```
+
 
 
 
