@@ -51,6 +51,32 @@ const mySql = new SqlUtil({
     user: "xxxx",
     password: "xxxx",
     connectionLimit: 5 // 默认5 可以不配置
+  }
+});
+
+// 使用
+let searchRes = await mySql.select({
+  table: "xxxx",
+  where: {
+    id: 1
+  }
+});
+```
+
+
+
+## <a id="ssh-config">SSH 配置[option feature]</a>
+
+```js
+// 创建链接
+const mySql = new SqlUtil({
+  dbConfig: {
+    host: "1.2.3.4",
+    port: "1000",
+    database: "xxxx",
+    user: "xxxx",
+    password: "xxxx",
+    connectionLimit: 5 // 默认5 可以不配置
   },
   // 仅在本地开发时使用ssh
   ssh: __DEV__
@@ -75,8 +101,6 @@ let searchRes = await mySql.select({
 ```
 
 
-
-## <a id="ssh-config">SSH 配置</a>
 
 - srcHost：本地后台服务启动 ip
 
