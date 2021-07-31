@@ -241,8 +241,8 @@ class SqlUtil {
     table: string
     where?: any
     groupby?: string
-    orderby?: string
-    order?: string
+    orderby?: string | string[]
+    order?: string | string[]
     limit?: {
       start: number | string
       size: number | string
@@ -261,7 +261,7 @@ class SqlUtil {
       sql += this.format(' group by ?? ', [groupby])
     }
     if (orderby) {
-      sql += this.format(` order by ?? ${order} `, [orderby])
+      sql += this.getOrderby(orderby, order)
     }
     if (limit) {
       sql += this.format(' limit ?,?', [
@@ -498,7 +498,7 @@ class SqlUtil {
       sql += this.format(` group by ${this.escapeId(groupby)} `, [])
     }
     if (orderby) {
-      sql += this.format(` order by ${this.escapeId(orderby)} ${order} `, [])
+      sql += this.getOrderby(orderby, order)
     }
     if (limit && !total) {
       sql += this.format(' limit ?,?', [
@@ -833,6 +833,22 @@ class SqlUtil {
     } else {
       conn.release && conn.release()
     }
+  }
+  getOrderby(orderby: string | string[], _orders: string | string[]){
+    let orders = _orders;
+    if (!(orders instanceof Array || Array.isArray(orders))) {
+      orders = [orders];
+    }
+    let order:string = orders[0];
+    if(!Array.isArray(orderby)){
+      return this.format(` order by ?? ${order} `, [orderby])
+    }
+    let str = ` order by `;
+    orderby.forEach((item,index) => {
+      orders[index] && (order = orders[index]);
+      str+= this.format(`${index ? ', ' : ''}?? ${order}`,[item]);
+    })
+    return str;
   }
 }
 
