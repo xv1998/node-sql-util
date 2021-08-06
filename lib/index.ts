@@ -234,6 +234,7 @@ class SqlUtil {
     groupby = '',
     orderby = '',
     order = 'desc',
+    orders = null,
     limit,
     asSql = false,
   }: {
@@ -241,8 +242,9 @@ class SqlUtil {
     table: string
     where?: any
     groupby?: string
-    orderby?: string | string[]
-    order?: string | string[]
+    orderby?: string
+    order?: string
+    orders?: any
     limit?: {
       start: number | string
       size: number | string
@@ -260,8 +262,8 @@ class SqlUtil {
     if (groupby) {
       sql += this.format(' group by ?? ', [groupby])
     }
-    if (orderby) {
-      sql += this.getOrderby(orderby, order)
+    if (orders || orderby) {
+      sql += this.getOrderby({orders,orderby,order})
     }
     if (limit) {
       sql += this.format(' limit ?,?', [
@@ -282,6 +284,7 @@ class SqlUtil {
     groupby = '',
     orderby = '',
     order = 'desc',
+    orders = null,
     limit = {
       start: 0,
       size: 1,
@@ -295,6 +298,7 @@ class SqlUtil {
       groupby,
       orderby,
       order,
+      orders,
       limit,
       asSql,
     })
@@ -420,6 +424,7 @@ class SqlUtil {
     groupby = '',
     orderby = '',
     order = 'desc',
+    orders = null,
     limit = null,
     total = false,
     asSql = false,
@@ -497,8 +502,8 @@ class SqlUtil {
     if (groupby) {
       sql += this.format(` group by ${this.escapeId(groupby)} `, [])
     }
-    if (orderby) {
-      sql += this.getOrderby(orderby, order)
+    if (orders || orderby) {
+      sql += this.getOrderby({orders,orderby,order})
     }
     if (limit && !total) {
       sql += this.format(' limit ?,?', [
@@ -834,21 +839,22 @@ class SqlUtil {
       conn.release && conn.release()
     }
   }
-  getOrderby(orderby: string | string[], _orders: string | string[]){
-    let orders = _orders;
+  getOrderby(_orders: any){
+    let {orders, order, orderby} = _orders || {}
+    let str:string = ''
+    if(!orders && orderby){
+      return this.format(` order by ?? ${order}`, [orderby])
+    }
     if (!(orders instanceof Array || Array.isArray(orders))) {
-      orders = [orders];
+      orders = [orders]
     }
-    let order:string = orders[0];
-    if(!Array.isArray(orderby)){
-      return this.format(` order by ?? ${order} `, [orderby])
-    }
-    let str = ` order by `;
-    orderby.forEach((item,index) => {
-      orders[index] && (order = orders[index]);
-      str+= this.format(`${index ? ', ' : ''}?? ${order}`,[item]);
+    orders.forEach((item:any,index:number) => {
+      let { order, by } = item || {}
+      if(order && by){
+        str+= this.format(`${index ? ', ' : ` order by `}?? ${order}`,[by])
+      }
     })
-    return str;
+    return str
   }
 }
 

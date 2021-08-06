@@ -192,8 +192,13 @@ describe('condition', () => {
 
     let sql = await mysql.select({
       table:'table1',
-      orderby: ['id','age'],
-      order: ['desc'],
+      orders: [{
+        by: 'id',
+        order: 'desc'
+      },{
+        by: 'age',
+        order: 'desc'
+      }],
       asSql: true
     })
 
@@ -204,8 +209,13 @@ describe('condition', () => {
 
     let sql = await mysql.select({
       table:'table1',
-      orderby: ['id','age'],
-      order: ['desc','asc'],
+      orders: [{
+        order: 'desc',
+        by: 'id'
+      },{
+        order: 'asc',
+        by: 'age'
+      }],
       asSql: true
     })
 
