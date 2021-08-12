@@ -598,8 +598,9 @@ await mySql.select({
 });
 ```
 
-#### Grouping sorting
+#### Sorting
 
+1.Grouping sorting
 ```sql
 select name,age from `table1` where `age` = 18 group by `sex` order by `brithday` desc;
 ```
@@ -614,6 +615,25 @@ await mySql.select({
   groupby: "sex",
   orderby: "brithday",
   order: "desc"
+});
+```
+
+2.Multi sorting
+```sql
+select name,age from table1 order by age desc, id asc;
+```
+
+```javascript
+await mySql.select({
+  fields: ["name", "age"],
+  table: "table1",
+  orders: [{
+    order: 'desc',
+    by: 'age'
+  },{
+    order: 'asc',
+    by: 'id'
+  }]
 });
 ```
 

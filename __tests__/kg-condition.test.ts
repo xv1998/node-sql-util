@@ -174,4 +174,51 @@ describe('condition', () => {
 
     expect(sqlTrim(sql)).toBe("select * from `table1` where POSITION('tomato' in `vegetable`);")
   })
+
+  test('order by single field with single order', async () => {
+    let mysql = new kgSqlutil({})
+
+    let sql = await mysql.select({
+      table:'table1',
+      orderby: 'id',
+      order: 'desc',
+      asSql: true
+    })
+
+    expect(sqlTrim(sql)).toBe('select * from `table1` order by `id` desc;')
+  })
+  test('order by fields with single order', async () => {
+    let mysql = new kgSqlutil({})
+
+    let sql = await mysql.select({
+      table:'table1',
+      orders: [{
+        by: 'id',
+        order: 'desc'
+      },{
+        by: 'age',
+        order: 'desc'
+      }],
+      asSql: true
+    })
+
+    expect(sqlTrim(sql)).toBe('select * from `table1` order by `id` desc, `age` desc;')
+  })
+  test('order by fields with orders', async () => {
+    let mysql = new kgSqlutil({})
+
+    let sql = await mysql.select({
+      table:'table1',
+      orders: [{
+        order: 'desc',
+        by: 'id'
+      },{
+        order: 'asc',
+        by: 'age'
+      }],
+      asSql: true
+    })
+
+    expect(sqlTrim(sql)).toBe('select * from `table1` order by `id` desc, `age` asc;')
+  })
 })
