@@ -8,5 +8,4 @@ cache
 *.log
 package-lock.json
 coverage
-CHANGELOG.md
 .npmrc
