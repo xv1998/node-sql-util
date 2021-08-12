@@ -610,7 +610,9 @@ await mySql.select({
 });
 ```
 
-#### 分组排序
+#### 排序
+
+1.分组排序
 
 ```sql
 select name,age from `table1` where `age` = 18 group by `sex` order by `brithday` desc;
@@ -628,6 +630,26 @@ await mySql.select({
   order: "desc"
 });
 ```
+
+2.多列排序
+```sql
+select name,age from table1 order by age desc, id asc;
+```
+
+```javascript
+await mySql.select({
+  fields: ["name", "age"],
+  table: "table1",
+  orders: [{
+    order: 'desc',
+    by: 'age'
+  },{
+    order: 'asc',
+    by: 'id'
+  }]
+});
+```
+
 
 #### 选择范围
 
