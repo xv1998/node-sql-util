@@ -39,6 +39,8 @@ interface PropsType {
     connectionLimit?: number
   }
   endReleaseType?: 'release' | 'end'
+  returnOriginError?: boolean // return original sql error infomation
+  returnOriginSource?: boolean // return original sql success infomation
   ssh?: {
     srcHost: string
     srcPort: number
@@ -56,6 +58,8 @@ class SqlUtil {
   props: PropsType
   driver: PropsType["driver"]
   pool: any
+  returnOriginError: boolean
+  returnOriginSource: boolean
   poolMd5: string
   dbConfig: PropsType['dbConfig']
   endReleaseType: any
@@ -74,6 +78,8 @@ class SqlUtil {
     this.props = props
     this.driver = props.driver || mysql;
     this.pool = null
+    this.returnOriginError = !!props.returnOriginError
+    this.returnOriginSource = !!props.returnOriginSource
     this.poolMd5 = this.getMd5(JSON.stringify(props)) //The configuration information is the connection pool unique ID
     this.dbConfig = {
       ...props.dbConfig,
@@ -263,7 +269,7 @@ class SqlUtil {
       sql += this.format(' group by ?? ', [groupby])
     }
     if (orders || orderby) {
-      sql += this.getOrderby({orders,orderby,order})
+      sql += this.getOrderby({ orders, orderby, order })
     }
     if (limit) {
       sql += this.format(' limit ?,?', [
@@ -503,7 +509,7 @@ class SqlUtil {
       sql += this.format(` group by ${this.escapeId(groupby)} `, [])
     }
     if (orders || orderby) {
-      sql += this.getOrderby({orders,orderby,order})
+      sql += this.getOrderby({ orders, orderby, order })
     }
     if (limit && !total) {
       sql += this.format(' limit ?,?', [
@@ -596,8 +602,7 @@ class SqlUtil {
         }
       } else if (Array.isArray(value) && between) {
         sql += this.format(
-          ` ${index === 0 ? '' : join} ${`${this.escapeId(key)} ${
-            keyObject.not ? 'not between' : 'between'
+          ` ${index === 0 ? '' : join} ${`${this.escapeId(key)} ${keyObject.not ? 'not between' : 'between'
           } ? and ?`} `,
           [value[0], value[1]]
         )
@@ -622,15 +627,15 @@ class SqlUtil {
         resolve(this.handleRes(-1005, 'Connection failed, connection pool is empty, please check configuration'))
       this.pool.getConnection((e: any, connection: any) => {
         if (e) {
-          resolve(this.handleRes(-1003, 'Connection failed'))
+          this.resolveConnectFail(resolve, e)
         } else {
           connection.query(sql, (err: any, rows: any) => {
             this.releaseConnection(connection)
             if (err) {
-              resolve(this.handleRes(-1004, err.message || 'Data query failed', {}))
+              this.resolveQueryFail(resolve, err, err.message)
             } else {
               resolve(
-                this.handleRes(0, 'success', { data: returnRes ? rows : [] })
+                this.handleRes(0, 'success', { data: returnRes || this.returnOriginSource ? rows : [] })
               )
             }
           })
@@ -647,12 +652,12 @@ class SqlUtil {
     return new Promise(resolve => {
       this.pool.getConnection((e: any, connection: any) => {
         if (e) {
-          resolve(this.handleRes(-1003, 'Connection failed'))
+          this.resolveConnectFail(resolve, e)
         } else {
           connection.beginTransaction(async (err: any) => {
             if (err) {
               this.releaseConnection(connection)
-              resolve(this.handleRes(-1003, 'Transaction startup failed'))
+              this.resolveConnectFail(resolve, err, 'Transaction startup failed')
             } else {
               let isOk = true
               let errData = {}
@@ -671,13 +676,7 @@ class SqlUtil {
               if (isOk) {
                 connection.commit((err: any) => {
                   if (err) {
-                    resolve(
-                      this.handleRes(
-                        -1006,
-                        'Transaction submission failed ' + (err.message || ''),
-                        showlog ? { err } : {}
-                      )
-                    )
+                    this.resolveCommitFail(resolve, err, 'Transaction submission failed ' + (err.message || ''))
                   } else {
                     resolve(this.handleRes(0, 'success'))
                   }
@@ -685,13 +684,7 @@ class SqlUtil {
                 })
               } else {
                 connection.rollback(() => {
-                  resolve(
-                    this.handleRes(
-                      -1007,
-                      'Transaction execution failed',
-                      showlog ? { err: errData } : {}
-                    )
-                  )
+                  this.resolveTransationFail(resolve, errData)
                   this.releaseConnection(connection)
                 })
               }
@@ -705,7 +698,7 @@ class SqlUtil {
     return new Promise(resolve => {
       connection.query(sql, (err: any, rows: any) => {
         if (err) {
-          resolve(this.handleRes(-1004, 'Data query failed', {}))
+          this.resolveQueryFail(resolve, err)
         } else {
           resolve(this.handleRes(0, 'success'))
         }
@@ -730,25 +723,23 @@ class SqlUtil {
     return new Promise(resolve => {
       this.pool.getConnection((e: any, connection: any) => {
         if (e) {
-          resolve(this.handleRes(-1003, 'Connection failed'))
+          this.resolveConnectFail(resolve, e)
         } else {
           connection.beginTransaction(async (err: any) => {
             if (err) {
               this.releaseConnection(connection)
-              resolve(this.handleRes(-1003, 'Transaction startup failed'))
+              this.resolveConnectFail(resolve, err, 'Transaction startup failed')
             } else {
               const newSqlUtil = new SqlUtil(this.props)
 
               /**
                * The temporary sqlUtil must return the connections corresponding to the transaction.
                */
-              newSqlUtil.query = async function(sql = '', returnRes = true) {
+              newSqlUtil.query = async function (sql = '', returnRes = true) {
                 return new Promise(resolve => {
                   connection.query(sql, (err: Error, rows: any[]) => {
                     if (err) {
-                      resolve(
-                        this.handleRes(-1004, err.message || 'Data query failed', {})
-                      )
+                      this.resolveQueryFail(resolve, err)
                     } else {
                       resolve(
                         this.handleRes(0, 'success', {
@@ -780,29 +771,13 @@ class SqlUtil {
 
               if (!isOk) {
                 connection.rollback(() => {
-                  resolve(
-                    this.handleRes(
-                      -1007,
-                      'Transaction execution failed',
-                      showlog
-                        ? {
-                          err: runResult,
-                        }
-                        : {}
-                    )
-                  )
+                  this.resolveTransationFail(resolve, runResult)
                   this.releaseConnection(connection)
                 })
               } else {
                 connection.commit((err: any) => {
                   if (err) {
-                    resolve(
-                      this.handleRes(
-                        -1006,
-                        'Transaction submission failed' + (err.message || ''),
-                        showlog ? { err } : {}
-                      )
-                    )
+                    this.resolveCommitFail(resolve, err, 'Transaction submission failed ' + (err.message || ''))
                   } else {
                     resolve(this.handleRes(0, 'success'))
                   }
@@ -814,6 +789,34 @@ class SqlUtil {
         }
       })
     })
+  }
+  resolveConnectFail(resolve: any, error: any, message?: string) {
+    if (this.returnOriginError) {
+      resolve({ code: -1003, error })
+    } else {
+      resolve(this.handleRes(-1003, message || 'Connection failed'))
+    }
+  }
+  resolveQueryFail(resolve: any, error: any, message?: string) {
+    if (this.returnOriginError) {
+      resolve({ code: -1004, error })
+    } else {
+      resolve(this.handleRes(-1004, message || 'Data query failed'))
+    }
+  }
+  resolveTransationFail(resolve: any, error: any, message?: string) {
+    if (this.returnOriginError) {
+      resolve({ code: -1007, error })
+    } else {
+      resolve(this.handleRes(-1007, message || 'Transaction execution failed'))
+    }
+  }
+  resolveCommitFail(resolve: any, error: any, message?: string) {
+    if (this.returnOriginError) {
+      resolve({ code: -1006, error })
+    } else {
+      resolve(this.handleRes(-1006, message || 'Transaction submission failed'))
+    }
   }
   getMd5(text = '') {
     const md5 = _crypto.createHash('md5')
@@ -839,19 +842,19 @@ class SqlUtil {
       conn.release && conn.release()
     }
   }
-  getOrderby(_orders: any){
-    let {orders, order, orderby} = _orders || {}
-    let str:string = ''
-    if(!orders && orderby){
+  getOrderby(_orders: any) {
+    let { orders, order, orderby } = _orders || {}
+    let str: string = ''
+    if (!orders && orderby) {
       return this.format(` order by ?? ${order}`, [orderby])
     }
     if (!(orders instanceof Array || Array.isArray(orders))) {
       orders = [orders]
     }
-    orders.forEach((item:any,index:number) => {
+    orders.forEach((item: any, index: number) => {
       let { order, by } = item || {}
-      if(order && by){
-        str+= this.format(`${index ? ', ' : ` order by `}?? ${order}`,[by])
+      if (order && by) {
+        str += this.format(`${index ? ', ' : ` order by `}?? ${order}`, [by])
       }
     })
     return str

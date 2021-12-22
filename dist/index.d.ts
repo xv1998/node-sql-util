@@ -9,6 +9,8 @@ interface PropsType {
         connectionLimit?: number;
     };
     endReleaseType?: 'release' | 'end';
+    returnOriginError?: boolean;
+    returnOriginSource?: boolean;
     ssh?: {
         srcHost: string;
         srcPort: number;
@@ -25,6 +27,8 @@ declare class SqlUtil {
     props: PropsType;
     driver: PropsType["driver"];
     pool: any;
+    returnOriginError: boolean;
+    returnOriginSource: boolean;
     poolMd5: string;
     dbConfig: PropsType['dbConfig'];
     endReleaseType: any;
@@ -42,26 +46,28 @@ declare class SqlUtil {
     initSSH(props: any): Promise<void>;
     getSSHStream(): Promise<unknown>;
     setConnection(dbConfig?: any): Promise<void>;
-    select({ fields, table, where, groupby, orderby, order, limit, asSql, }: {
+    select({ fields, table, where, groupby, orderby, order, orders, limit, asSql, }: {
         fields?: any;
         table: string;
         where?: any;
         groupby?: string;
         orderby?: string;
         order?: string;
+        orders?: any;
         limit?: {
             start: number | string;
             size: number | string;
         };
         asSql?: boolean;
     }): Promise<any>;
-    find({ fields, table, where, groupby, orderby, order, limit, asSql, }: {
+    find({ fields, table, where, groupby, orderby, order, orders, limit, asSql, }: {
         fields?: never[] | undefined;
         table?: string | undefined;
         where?: null | undefined;
         groupby?: string | undefined;
         orderby?: string | undefined;
         order?: string | undefined;
+        orders?: null | undefined;
         limit?: {
             start: number;
             size: number;
@@ -91,7 +97,7 @@ declare class SqlUtil {
         where?: null | undefined;
         asSql?: boolean | undefined;
     }): Promise<unknown>;
-    join({ leftTable, rightTable, leftFields, rightFields, joinCondition, where, groupby, orderby, order, limit, total, asSql, }: {
+    join({ leftTable, rightTable, leftFields, rightFields, joinCondition, where, groupby, orderby, order, orders, limit, total, asSql, }: {
         leftTable?: string | undefined;
         rightTable?: string | undefined;
         leftFields?: never[] | undefined;
@@ -101,6 +107,7 @@ declare class SqlUtil {
         groupby?: string | undefined;
         orderby?: string | undefined;
         order?: string | undefined;
+        orders?: null | undefined;
         limit?: null | undefined;
         total?: boolean | undefined;
         asSql?: boolean | undefined;
@@ -118,6 +125,10 @@ declare class SqlUtil {
         rollback: (res: ReturnType<SqlUtil['handleRes']>) => void;
         commit: () => void;
     }) => Promise<void>, showlog?: boolean): Promise<unknown>;
+    resolveConnectFail(resolve: any, error: any, message?: string): void;
+    resolveQueryFail(resolve: any, error: any, message?: string): void;
+    resolveTransationFail(resolve: any, error: any, message?: string): void;
+    resolveCommitFail(resolve: any, error: any, message?: string): void;
     getMd5(text?: string): any;
     replaceDangerChar(word?: string): string;
     handleRes(code?: number, message?: string, obj?: {}): {
@@ -128,5 +139,6 @@ declare class SqlUtil {
         data: never[];
     };
     releaseConnection(conn?: any): void;
+    getOrderby(_orders: any): any;
 }
 export default SqlUtil;

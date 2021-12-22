@@ -50,7 +50,9 @@ const mySql = new SqlUtil({
     database: "xxxx",
     user: "xxxx",
     password: "xxxx",
-    connectionLimit: 5 // 默认5 可以不配置
+    connectionLimit: 5, // 默认5 可以不配置
+    returnOriginError: false, // 是否返回原始错误信息
+    returnOriginSource: false, // 是否返回原始成功执行信息
   }
 });
 
