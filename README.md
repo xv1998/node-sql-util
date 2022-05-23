@@ -655,6 +655,24 @@ await mySql.select({
 });
 ```
 
+```sql
+select name,age from table1 where age not in (12,34,1,6,7)
+```
+
+```javascript
+await mySql.select({
+  fields: ["name", "age"],
+  table: "table1",
+  where: {
+    age: {
+      value:[12, 34, 1, 6, 7],
+      notIn:true
+    }
+  }
+});
+```
+
+
 1.greater than or less than
 
 ```sql
