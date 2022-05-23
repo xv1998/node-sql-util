@@ -410,7 +410,7 @@ class SqlUtil {
             if (Array.isArray(value) && !between) {
                 sql +=
                     `${index === 0 ? '' : join} ` +
-                        this.format(' ?? in (?) ', [key, value]);
+                        this.format(` ?? ${keyObject.notIn ? 'not ' : ''}in (?) `, [key, value]);
             }
             else if (like || position) {
                 if (like) {
