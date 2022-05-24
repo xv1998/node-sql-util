@@ -89,6 +89,7 @@ mySql.select({
   where = null,
   groupby = "",
   order = "desc",
+  orderCustom = "order by id desc",
   limit = null,
   asSql = false
 })
@@ -106,6 +107,7 @@ mySql.select({
 | groupby    | ""      | no   |
 | orderby    | ""      | no   |
 | order      | "desc"  | no   |
+| orderCustom| ""      | no   |
 | limit      | null    | no   |
 | asSql      | false   | no   |
 
