@@ -46,7 +46,7 @@ declare class SqlUtil {
     initSSH(props: any): Promise<void>;
     getSSHStream(): Promise<unknown>;
     setConnection(dbConfig?: any): Promise<void>;
-    select({ fields, table, where, groupby, orderby, order, orders, limit, asSql, }: {
+    select({ fields, table, where, groupby, orderby, order, orders, orderCustom, limit, asSql, }: {
         fields?: any;
         table: string;
         where?: any;
@@ -54,6 +54,7 @@ declare class SqlUtil {
         orderby?: string;
         order?: string;
         orders?: any;
+        orderCustom?: string;
         limit?: {
             start: number | string;
             size: number | string;

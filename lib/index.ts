@@ -241,6 +241,7 @@ class SqlUtil {
     orderby = '',
     order = 'desc',
     orders = null,
+    orderCustom = '',
     limit,
     asSql = false,
   }: {
@@ -251,6 +252,7 @@ class SqlUtil {
     orderby?: string
     order?: string
     orders?: any
+    orderCustom?:string
     limit?: {
       start: number | string
       size: number | string
@@ -270,6 +272,9 @@ class SqlUtil {
     }
     if (orders || orderby) {
       sql += this.getOrderby({ orders, orderby, order })
+    }
+    if (orderCustom) {
+      sql += ' '+orderCustom
     }
     if (limit) {
       sql += this.format(' limit ?,?', [

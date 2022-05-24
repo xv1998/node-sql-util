@@ -221,4 +221,16 @@ describe('condition', () => {
 
     expect(sqlTrim(sql)).toBe('select * from `table1` order by `id` desc, `age` asc;')
   })
+
+
+  test('orderCustom', async () => {
+    let mysql = new kgSqlutil({})
+
+    let sql = await mysql.select({
+      table:'table1',
+      orderCustom:'order by id desc',
+      asSql: true
+    })
+    expect(sqlTrim(sql)).toBe('select * from `table1` order by id desc;')
+  })
 })

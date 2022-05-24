@@ -158,7 +158,7 @@ class SqlUtil {
             }
         }
     }
-    async select({ fields = [], table = '', where, groupby = '', orderby = '', order = 'desc', orders = null, limit, asSql = false, }) {
+    async select({ fields = [], table = '', where, groupby = '', orderby = '', order = 'desc', orders = null, orderCustom = '', limit, asSql = false, }) {
         if (!table) {
             return this.handleRes(-2001, 'The database table is not configured');
         }
@@ -171,6 +171,9 @@ class SqlUtil {
         }
         if (orders || orderby) {
             sql += this.getOrderby({ orders, orderby, order });
+        }
+        if (orderCustom) {
+            sql += ' ' + orderCustom;
         }
         if (limit) {
             sql += this.format(' limit ?,?', [
