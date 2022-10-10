@@ -47,10 +47,10 @@ const mySql = new SqlUtil({
     user: "xxxx",
     password: "xxxx",
     timezone: "",
-    connectionLimit: 5, // default 5 //You can not configure it
-    returnOriginError: false, // when 'true' it will return original sql exec error information
-    returnOriginSource: false, // when 'true' it will return original sql exec success information
-  }
+    connectionLimit: 5,// default 5 //You can not configure it
+  },
+  returnOriginError: false, // when 'true' it will return original sql exec error information
+  returnOriginSource: false, // when 'true' it will return original sql exec success information
 });
 
 let searchRes = await mySql.select({
